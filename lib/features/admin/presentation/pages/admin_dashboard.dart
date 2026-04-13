@@ -94,7 +94,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   Widget _buildDashboardView() {
     final projectsAsync = ref.watch(projectsProvider);
     
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(40.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
