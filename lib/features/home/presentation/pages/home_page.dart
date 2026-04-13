@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../projects/providers/project_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -31,8 +32,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Main Scrollable Content
@@ -100,9 +104,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.dark_mode, color: AppTheme.primary),
+                            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: AppTheme.primary),
                             onPressed: () {
-                              // Toggle basic theme mock
+                              ref.read(themeModeProvider.notifier).toggle();
                             },
                           ),
                           IconButton(
@@ -247,7 +251,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         height: isDesktop ? 550 : 380,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: AppTheme.surfaceContainer,
+                          color: AppTheme.surfaceContainerWith(context),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.4),
@@ -324,7 +328,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Container(
       key: key,
       width: double.infinity,
-      color: AppTheme.surfaceContainerLow,
+      color: AppTheme.surfaceContainerLowWith(context),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
       child: Center(
         child: ConstrainedBox(
@@ -511,7 +515,7 @@ class _SkillCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainer,
+        color: AppTheme.surfaceContainerWith(context),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -519,14 +523,14 @@ class _SkillCard extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              color: AppTheme.surfaceContainerHighest,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerHighestWith(context),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppTheme.primary),
           ),
           const SizedBox(height: 16),
-          Text(title, style: const TextStyle(color: AppTheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
         ],
       ),
     );
@@ -542,7 +546,7 @@ class _ProjectCard extends StatelessWidget {
     return Container(
       width: 500,
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainer,
+        color: AppTheme.surfaceContainerWith(context),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

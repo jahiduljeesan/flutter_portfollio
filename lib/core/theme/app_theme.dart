@@ -25,6 +25,19 @@ class AppTheme {
   // Accents
   static const outlineVariant = Color(0xFF434656);
 
+  // Dynamic Theme Helpers
+  static Color surfaceContainerWith(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainer : const Color(0xFFF1F5F9); // Slate 100
+      
+  static Color surfaceContainerLowWith(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLow : const Color(0xFFF8FAFC); // Slate 50
+      
+  static Color surfaceContainerHighestWith(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerHighest : const Color(0xFFE2E8F0); // Slate 200
+      
+  static Color surfaceContainerLowestWith(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLowest : const Color(0xFFFFFFFF); // White
+
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -95,6 +108,88 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent, // Handled by gradient in Ink feature usually
+          foregroundColor: onPrimary,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: const ColorScheme.light(
+        primary: primary,
+        primaryContainer: primaryContainer,
+        secondary: secondary,
+        tertiary: tertiary,
+        surface: Color(0xFFF8FAFC), 
+        onSurface: Color(0xFF0F172A), 
+        onPrimary: Colors.white,
+        outlineVariant: Color(0xFFCBD5E1),
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.manrope(
+          fontSize: 56,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF0F172A),
+          height: 1.2,
+        ),
+        displayMedium: GoogleFonts.manrope(
+          fontSize: 48,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF0F172A),
+        ),
+        headlineLarge: GoogleFonts.manrope(
+          fontSize: 40,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF0F172A),
+        ),
+        headlineSmall: GoogleFonts.manrope(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF475569), // Secondary text
+        ),
+        titleLarge: GoogleFonts.inter(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF0F172A),
+        ),
+        bodyLarge: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF0F172A),
+          height: 1.5,
+        ),
+        bodyMedium: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF0F172A),
+          height: 1.5,
+        ),
+        labelLarge: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.8,
+          color: const Color(0xFF475569),
+        ),
+        labelSmall: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.8,
+          color: const Color(0xFF475569),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
           foregroundColor: onPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(
