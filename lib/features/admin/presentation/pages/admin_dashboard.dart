@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../projects/providers/project_provider.dart';
+import '../../../projects/models/project.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -35,7 +37,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       ),
       floatingActionButton: _selectedIndex == 1 ? FloatingActionButton.extended(
         backgroundColor: AppTheme.primary,
-        onPressed: () => _showProjectDialog(context, ref),
+        onPressed: () {
+          showDialog(
+            context: context, 
+            builder: (_) => const _ProjectFormDialog(),
+          );
+        },
         icon: const Icon(Icons.add, color: AppTheme.onPrimary),
         label: const Text('New Project', style: TextStyle(color: AppTheme.onPrimary, fontWeight: FontWeight.bold)),
       ) : null,
@@ -116,19 +123,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           ),
           
           const SizedBox(height: 48),
-          Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          Text('Global Settings', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 24),
-          // Placeholder for recent activity
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceContainerLowWith(context),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Center(
-              child: Text('No recent activity to show', style: TextStyle(color: AppTheme.outlineVariant)),
-            ),
-          )
+          const _CVSettingsCard(),
+          const SizedBox(height: 24),
+          const _AdminCredentialsCard(),
         ],
       ),
     );
@@ -147,6 +146,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           Expanded(
             child: projectsAsync.when(
               data: (projects) {
+                if (projects.isEmpty) {
+                  return const Center(child: Padding(
+                    padding: EdgeInsets.all(40.0),
+                    child: Text('No project available', style: TextStyle(color: Colors.grey, fontSize: 18)),
+                  ));
+                }
+
                 return ListView.separated(
                   itemCount: projects.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -179,13 +185,34 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                             IconButton(
                               icon: const Icon(Icons.edit, color: AppTheme.primary),
                               tooltip: 'Edit Project',
-                              onPressed: () => _showProjectDialog(context, ref, project: project),
+                              onPressed: () {
+                                showDialog(
+                                  context: context, 
+                                  builder: (_) => _ProjectFormDialog(project: project),
+                                );
+                              },
                             ),
                             const SizedBox(width: 8),
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                               tooltip: 'Delete Project',
-                              onPressed: () {},
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Project?'),
+                                    content: const Text('Are you sure you want to completely erase this project?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                      TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.redAccent))),
+                                    ]
+                                  )
+                                );
+                                if (confirm == true) {
+                                  await ref.read(projectRepositoryProvider).deleteProject(project.id);
+                                  ref.invalidate(projectsProvider);
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -231,72 +258,228 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     );
   }
 
-  void _showProjectDialog(BuildContext context, WidgetRef ref, {dynamic project}) {
-    final isEditing = project != null;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppTheme.surfaceContainerHighestWith(context),
-          title: Text(isEditing ? 'Edit Project' : 'Add New Project', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-          content: SizedBox(
-            width: 600,
-            child: SingleChildScrollView(
-               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTextField('Project Title', initialValue: isEditing ? project.title : ''),
-                  const SizedBox(height: 16),
-                  _buildTextField('Short Description', initialValue: isEditing ? project.shortDescription : '', maxLines: 2),
-                  const SizedBox(height: 16),
-                  _buildTextField('Full Description', initialValue: isEditing ? project.fullDescription : '', maxLines: 4),
-                  const SizedBox(height: 16),
-                  _buildTextField('Image URL', initialValue: isEditing && project.imageUrls.isNotEmpty ? project.imageUrls.first : ''),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(child: _buildTextField('Source Code URL', initialValue: isEditing ? project.sourceCodeLink : '')),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildTextField('Download URL', initialValue: isEditing ? project.downloadLink : '')),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: AppTheme.onPrimary),
-              child: Text(isEditing ? 'Save Changes' : 'Create Project', style: const TextStyle(fontWeight: FontWeight.bold)),
-            )
-          ],
-        );
-      },
-    );
+// Replaced static dialog with Stateful Dialog
+}
+
+class _ProjectFormDialog extends ConsumerStatefulWidget {
+  final Project? project;
+  const _ProjectFormDialog({this.project});
+
+  @override
+  ConsumerState<_ProjectFormDialog> createState() => _ProjectFormDialogState();
+}
+
+class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
+  final _titleController = TextEditingController();
+  final _shortDescController = TextEditingController();
+  final _fullDescController = TextEditingController();
+  final _imageController = TextEditingController();
+  final _sourceController = TextEditingController();
+  final _downloadController = TextEditingController();
+  final _featuresController = TextEditingController();
+  bool _isFeatured = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.project != null) {
+      _titleController.text = widget.project!.title;
+      _shortDescController.text = widget.project!.shortDescription;
+      _fullDescController.text = widget.project!.fullDescription;
+      _imageController.text = widget.project!.imageUrls.isNotEmpty ? widget.project!.imageUrls.first : '';
+      _sourceController.text = widget.project!.sourceCodeLink ?? '';
+      _downloadController.text = widget.project!.downloadLink ?? '';
+      _featuresController.text = widget.project!.features.join(', ');
+      _isFeatured = widget.project!.isFeatured;
+    }
   }
 
-  Widget _buildTextField(String label, {String initialValue = '', int maxLines = 1}) {
+  Future<void> _save() async {
+    setState(() => _isLoading = true);
+    final isEditing = widget.project != null;
+    final proj = Project(
+      id: isEditing ? widget.project!.id : '',
+      title: _titleController.text.trim(),
+      shortDescription: _shortDescController.text.trim(),
+      fullDescription: _fullDescController.text.trim(),
+      features: _featuresController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+      imageUrls: _imageController.text.trim().isNotEmpty ? [_imageController.text.trim()] : [],
+      sourceCodeLink: _sourceController.text.trim().isNotEmpty ? _sourceController.text.trim() : null,
+      downloadLink: _downloadController.text.trim().isNotEmpty ? _downloadController.text.trim() : null,
+      isFeatured: _isFeatured,
+      viewCount: isEditing ? widget.project!.viewCount : 0,
+    );
+
+    try {
+      if (isEditing) {
+        await ref.read(projectRepositoryProvider).updateProject(proj);
+      } else {
+        await ref.read(projectRepositoryProvider).addProject(proj);
+      }
+      ref.invalidate(projectsProvider);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
     return TextFormField(
-      initialValue: initialValue,
+      controller: controller,
       maxLines: maxLines,
       style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppTheme.outlineVariant),
-          borderRadius: BorderRadius.circular(8),
+        enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.outlineVariant), borderRadius: BorderRadius.circular(8)),
+        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.primary), borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEditing = widget.project != null;
+    return AlertDialog(
+      backgroundColor: AppTheme.surfaceContainerHighestWith(context),
+      title: Text(isEditing ? 'Edit Project' : 'Add New Project', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+      content: SizedBox(
+        width: 600,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextField('Project Title', _titleController),
+              const SizedBox(height: 16),
+              _buildTextField('Short Description', _shortDescController, maxLines: 2),
+              const SizedBox(height: 16),
+              _buildTextField('Full Description', _fullDescController, maxLines: 4),
+              const SizedBox(height: 16),
+              _buildTextField('Features (comma separated)', _featuresController, maxLines: 2),
+              const SizedBox(height: 16),
+              _buildTextField('Image URL', _imageController),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField('Source Code URL', _sourceController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField('Download URL', _downloadController)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Featured Project'),
+                value: _isFeatured,
+                onChanged: (v) => setState(() => _isFeatured = v),
+                activeThumbColor: AppTheme.primary,
+              )
+            ],
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: AppTheme.primary),
-          borderRadius: BorderRadius.circular(8),
-        ),
+      ),
+      actions: [
+        TextButton(onPressed: _isLoading ? null : () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary))),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _save,
+          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: AppTheme.onPrimary),
+          child: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : Text(isEditing ? 'Save Changes' : 'Create Project', style: const TextStyle(fontWeight: FontWeight.bold)),
+        )
+      ],
+    );
+  }
+}
+
+class _CVSettingsCard extends StatefulWidget {
+  const _CVSettingsCard();
+
+  @override
+  State<_CVSettingsCard> createState() => _CVSettingsCardState();
+}
+
+class _CVSettingsCardState extends State<_CVSettingsCard> {
+  final TextEditingController _cvController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCV();
+  }
+
+  Future<void> _loadCV() async {
+    final doc = await FirebaseFirestore.instance.collection('settings').doc('general').get();
+    if (doc.exists && doc.data()!.containsKey('cv_url')) {
+      _cvController.text = doc.data()!['cv_url'];
+    }
+  }
+
+  Future<void> _saveCV() async {
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('settings').doc('general').set(
+        {'cv_url': _cvController.text.trim()}, 
+        SetOptions(merge: true)
+      );
+      if(mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CV Link Updated globally.')));
+      }
+    } catch (e) {
+      if(mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Firebase Error: $e'), backgroundColor: Colors.redAccent));
+      }
+    } finally {
+      if(mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowWith(context),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Curriculum Vitae (CV) Link', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          const SizedBox(height: 8),
+          Text('Provide a public Google Drive or Dropbox link for the Download button.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _cvController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'CV URL',
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _isLoading ? null : _saveCV,
+                icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
+                label: const Text('Save'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: AppTheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                ),
+              )
+            ],
+          )
+        ],
       ),
     );
   }
@@ -342,6 +525,122 @@ class _SidebarItem extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AdminCredentialsCard extends StatefulWidget {
+  const _AdminCredentialsCard();
+
+  @override
+  State<_AdminCredentialsCard> createState() => _AdminCredentialsCardState();
+}
+
+class _AdminCredentialsCardState extends State<_AdminCredentialsCard> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCredentials();
+  }
+
+  Future<void> _loadCredentials() async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('settings').doc('admin').get();
+      if (doc.exists) {
+        _userController.text = doc.data()?['username'] ?? '';
+        _passController.text = doc.data()?['password'] ?? '';
+      }
+    } catch (e) {
+      debugPrint("Could not load credentials: $e");
+    }
+  }
+
+  Future<void> _saveCredentials() async {
+    if (_userController.text.trim().isEmpty || _passController.text.trim().isEmpty) return;
+    
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('settings').doc('admin').set(
+        {
+          'username': _userController.text.trim(),
+          'password': _passController.text.trim()
+        }, 
+        SetOptions(merge: true)
+      );
+      if(mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin Credentials Updated.')));
+      }
+    } catch (e) {
+      if(mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Firebase Error: $e'), backgroundColor: Colors.redAccent));
+      }
+    } finally {
+      if(mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowWith(context),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Admin Credentials', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          const SizedBox(height: 8),
+          Text('Update your dashboard login credentials. Default is jahiduljeesan.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _userController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextField(
+                  controller: _passController,
+                  obscureText: true,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _isLoading ? null : _saveCredentials,
+                icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.security),
+                label: const Text('Update'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: AppTheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                ),
+              )
+            ],
+          )
+        ],
       ),
     );
   }

@@ -62,7 +62,7 @@ class ProjectDetailsPage extends ConsumerWidget {
                             Expanded(child: Text(f, style: Theme.of(context).textTheme.bodyLarge)),
                           ],
                         ),
-                      )).toList(),
+                      )),
                       const SizedBox(height: 40),
                       Wrap(
                         spacing: 16,

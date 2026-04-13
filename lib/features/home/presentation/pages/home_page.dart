@@ -70,7 +70,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'The Editorial Developer',
+                        'Jahidul.dev',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -158,8 +158,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Senior Android &',
-                      style: Theme.of(context).textTheme.displayLarge,
+                      'Md. Jahidul Islam',
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 56),
                     ),
                      ShaderMask(
                       shaderCallback: (bounds) => const LinearGradient(
@@ -171,6 +171,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         'Flutter Developer',
                         style: Theme.of(context).textTheme.displayLarge?.copyWith(
                           color: Colors.white,
+                          fontSize: 56,
                         ),
                       ),
                     ),
@@ -221,15 +222,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                         const SizedBox(width: 24),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppTheme.outlineVariant),
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            foregroundColor: AppTheme.onSurface,
-                          ),
-                          onPressed: () {},
-                          child: const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final cvAsync = ref.watch(cvProvider);
+                            return OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: AppTheme.outlineVariant),
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              onPressed: cvAsync.isLoading ? null : () async {
+                                final url = cvAsync.value;
+                                if (url != null && url.isNotEmpty) {
+                                  await launchUrl(Uri.parse(url));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('CV not available yet.')),
+                                  );
+                                }
+                              },
+                              child: cvAsync.isLoading
+                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            );
+                          }
                         )
                       ],
                     )
@@ -267,7 +284,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ColorFiltered(
                               colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
                               child: Image.network(
-                                'https://lh3.googleusercontent.com/aida-public/AB6AXuB9db80P2Ac2OYZmW9P90DIhW09mtAR6VNGpWgzDvAUv3ZEzvU0nBqstWlUDsH2j38M3JbhstrRh_7oqXK2qLY2np3tAzIxJAux1fqcFlOuMsv48AfiDMe3umRxVDm0Rq4SrAlnrd4z14lTE9OQ_PTyL2i-mKNkiw1YiqzGvOAB8kNOjHcAnVmaN9o7dy7JXgXhl5pAKSUvHBmx7GzqKQHY8eN9WW4f8ZSnLI9pLrXYPdLlURHy0gcq-MRdGrMakKVolqPnJd892g4',
+                                'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop', // High quality placeholder developer look
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -296,7 +313,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '8+',
+                                '1+',
                                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                                   color: AppTheme.onPrimaryContainer,
                                   fontWeight: FontWeight.w800,
@@ -414,6 +431,20 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 64),
               projectsAsync.when(
                 data: (projects) {
+                  if (projects.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 48.0),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const Icon(Icons.folder_off_outlined, size: 48, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            Text('No projects available at the moment', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                   return Wrap(
                     spacing: 48,
                     runSpacing: 48,
