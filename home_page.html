@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#5b5ae8",
+                        "primary-container": "#007792",
+                        "tertiary": "#c1c1ff",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#2e303a",
+                        "outline": "#8e90a2",
+                        "outline-variant": "#434656",
+                        "surface-tint": "#4cd6ff",
+                        "on-tertiary": "#1600a8",
+                        "surface-container": "#1d1f29",
+                        "primary-fixed-dim": "#4cd6ff",
+                        "surface-container-highest": "#32343e",
+                        "primary-fixed": "#b7eaff",
+                        "on-secondary-fixed-variant": "#454652",
+                        "surface-dim": "#11131c",
+                        "on-tertiary-fixed": "#0a006b",
+                        "on-primary": "#003543",
+                        "surface": "#11131c",
+                        "secondary-fixed": "#e2e1f1",
+                        "inverse-primary": "#00677f",
+                        "on-background": "#e1e1ef",
+                        "error": "#ffb4ab",
+                        "secondary": "#c6c5d4",
+                        "surface-container-low": "#191b24",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#312bc1",
+                        "inverse-surface": "#e1e1ef",
+                        "on-tertiary-container": "#f1eeff",
+                        "on-secondary-fixed": "#1a1b26",
+                        "surface-bright": "#373943",
+                        "surface-container-lowest": "#0c0e17",
+                        "tertiary-fixed": "#e2dfff",
+                        "background": "#11131c",
+                        "on-surface-variant": "#c4c5d9",
+                        "surface-variant": "#32343e",
+                        "primary": "#4cd6ff",
+                        "on-surface": "#e1e1ef",
+                        "on-secondary": "#2f303b",
+                        "on-primary-fixed-variant": "#004e60",
+                        "secondary-container": "#484855",
+                        "secondary-fixed-dim": "#c6c5d4",
+                        "tertiary-fixed-dim": "#c1c1ff",
+                        "surface-container-high": "#282933",
+                        "on-secondary-container": "#b8b7c6",
+                        "on-primary-fixed": "#001f28",
+                        "error-container": "#93000a",
+                        "on-primary-container": "#dcf4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-900/60 backdrop-blur-xl shadow-[0px_24px_48px_rgba(0,0,0,0.4)] h-20 flex items-center">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-8 w-full">
+<span class="text-xl font-bold text-slate-100 tracking-tight font-['Manrope']">The Editorial Developer</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-sky-400 font-bold border-b-2 border-sky-400 pb-1 font-['Manrope'] tracking-tight" href="#">Home</a>
+<a class="text-slate-400 hover:text-slate-100 transition-colors font-['Manrope'] tracking-tight" href="#skills">Skills</a>
+<a class="text-slate-400 hover:text-slate-100 transition-colors font-['Manrope'] tracking-tight" href="#projects">Projects</a>
+</div>
+<div class="flex gap-4 items-center">
+<button class="p-2 hover:bg-slate-800/50 rounded-lg transition-all scale-95 active:duration-150 text-sky-400">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="p-2 hover:bg-slate-800/50 rounded-lg transition-all scale-95 active:duration-150 text-sky-400">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center px-8 max-w-7xl mx-auto">
+<div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+<div class="order-2 lg:order-1">
+<span class="label-md tracking-[0.2em] text-primary font-bold mb-4 block uppercase">Architecture &amp; Performance</span>
+<h1 class="text-5xl md:text-7xl font-extrabold text-on-surface leading-tight mb-6">
+                        Senior Android &amp; <br/><span class="bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">Flutter Developer</span>
+</h1>
+<p class="text-secondary text-lg md:text-xl max-w-xl mb-10 leading-relaxed font-body">
+                        Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.
+                    </p>
+<div class="flex flex-wrap gap-6">
+<button class="bg-gradient-to-tr from-primary to-primary-container text-on-primary px-8 py-4 rounded-xl font-bold tracking-tight shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95">
+                            Contact Me
+                        </button>
+<button class="border border-outline-variant hover:bg-surface-container-highest transition-colors text-on-surface px-8 py-4 rounded-xl font-bold tracking-tight">
+                            Download CV
+                        </button>
+</div>
+</div>
+<div class="order-1 lg:order-2 flex justify-center lg:justify-end">
+<div class="relative w-72 h-72 md:w-[450px] md:h-[550px] rounded-xl overflow-hidden bg-surface-container shadow-2xl">
+<img alt="Senior Developer Profile" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Professional portrait of a male software developer in a dark studio setting with soft cyan ambient light and premium editorial atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9db80P2Ac2OYZmW9P90DIhW09mtAR6VNGpWgzDvAUv3ZEzvU0nBqstWlUDsH2j38M3JbhstrRh_7oqXK2qLY2np3tAzIxJAux1fqcFlOuMsv48AfiDMe3umRxVDm0Rq4SrAlnrd4z14lTE9OQ_PTyL2i-mKNkiw1YiqzGvOAB8kNOjHcAnVmaN9o7dy7JXgXhl5pAKSUvHBmx7GzqKQHY8eN9WW4f8ZSnLI9pLrXYPdLlURHy0gcq-MRdGrMakKVolqPnJd892g4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-60"></div>
+<!-- Asymmetrical element -->
+<div class="absolute -bottom-6 -left-6 bg-primary-container p-6 rounded-xl hidden md:block">
+<span class="text-4xl font-extrabold text-on-primary-container">8+</span>
+<span class="block text-xs uppercase tracking-widest text-on-primary-container/80 font-bold">Years Experience</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Skills Section -->
+<section class="py-24 bg-surface-container-low" id="skills">
+<div class="max-w-7xl mx-auto px-8">
+<div class="mb-16">
+<h2 class="text-4xl font-extrabold mb-4">The Toolkit</h2>
+<div class="w-20 h-1 bg-primary"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+<!-- Skill Card -->
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Dart</span>
+</div>
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">flutter_dash</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Flutter</span>
+</div>
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">developer_mode</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Kotlin</span>
+</div>
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">coffee</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Java</span>
+</div>
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Firebase</span>
+</div>
+<div class="group bg-surface-container p-8 rounded-xl transition-all hover:bg-surface-bright hover:-translate-y-2 flex flex-col items-center text-center">
+<div class="w-12 h-12 mb-4 bg-surface-container-highest rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">cloud</span>
+</div>
+<span class="font-bold text-on-surface tracking-tight">Google Cloud</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Projects Section -->
+<section class="py-24" id="projects">
+<div class="max-w-7xl mx-auto px-8">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+<div>
+<h2 class="text-5xl font-extrabold mb-4">Featured Projects</h2>
+<p class="text-secondary max-w-md">A selection of curated mobile applications focused on fintech, health, and enterprise solutions.</p>
+</div>
+<div class="text-primary font-bold flex items-center gap-2 group cursor-pointer">
+                        View All Archives
+                        <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-2 gap-12">
+<!-- Project Card 1 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden shadow-2xl transition-all hover:translate-y-[-8px]">
+<div class="h-[400px] overflow-hidden relative">
+<img alt="Fintech App Design" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Sleek dark mode mobile application interface showing complex financial charts and glassmorphic UI elements in high definition" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD61Bz0GAGsILLZr8QQUsvT1VD-Wb9vm8oYBrveMwegZmJ9yPV5taF3BOBPB4XwGDo6jiLz7Th3Jn9EWBqbExc1Zw6tqPqb8Lubx7Dj8hRkJTNLlQ1iUxKZfOHBDpe-IVBKkxKf2jI3CLNKUW3jzh0K-kxPj58JoVZXB3mHB2QJCe43Z1ziJ6WtGGJVXEvneHYCfNrPnhNYKuS5-sVaYT_VsvkKcSg2Bq2s8j9oUV2ycDr87hE_guhL38EuCDq86NMXAYgPmXmjSU"/>
+<div class="absolute top-6 left-6 flex gap-2">
+<span class="bg-surface/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold">Fintech</span>
+<span class="bg-primary/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold text-on-primary">Flutter</span>
+</div>
+</div>
+<div class="pt-10 pr-8 pb-8 pl-8">
+<h3 class="text-3xl font-bold mb-4">Lumina Banking</h3>
+<p class="text-secondary mb-8 leading-relaxed font-body">
+                                A high-performance digital banking suite with real-time biometric security and custom Canvas-based visualization engines.
+                            </p>
+<button class="flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all">
+                                View Details
+                                <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden shadow-2xl transition-all hover:translate-y-[-8px] mt-0 md:mt-24">
+<div class="h-[400px] overflow-hidden relative">
+<img alt="Health Metrics UI" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Close up of a premium fitness application screen with vibrant violet gradients and smooth user interface cards" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAceOnpR5gvWMCIB559m5VqXh1xBmIzbgaCRM7U9TkHJwSOmvxtXshpNC5QCb4DFC7gmj6TiOxN5dTVEglHz6OB7Qd-Gg3tPSLc8hBEBa4rIjGo1u8B7-QUh9ZOtxVxpwxVce4lxaizTzFe8Hr6Ojs0TA-ax9M-Cvtpix1N74D04JhLw9ZLZFyt5KcUvAFYDMrJ6an4Z2y3oaCJsG-nfaI7JNqVnOJaLVsPF3jvjkAdx08tIsZhkSOz94hH-lnP-xr6K-XPclvvxw0"/>
+<div class="absolute top-6 left-6 flex gap-2">
+<span class="bg-surface/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold">HealthTech</span>
+<span class="bg-primary/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold text-on-primary">Kotlin</span>
+</div>
+</div>
+<div class="pt-10 pr-8 pb-8 pl-8">
+<h3 class="text-3xl font-bold mb-4">VitalPulse AI</h3>
+<p class="text-secondary mb-8 leading-relaxed font-body">
+                                Enterprise-level health tracking integration using Bluetooth Low Energy (BLE) and predictive analysis with ML Kit.
+                            </p>
+<button class="flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all">
+                                View Details
+                                <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 mt-20 bg-slate-950 border-t border-slate-800/50">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 max-w-7xl mx-auto gap-8">
+<p class="text-slate-500 font-['Inter'] text-sm tracking-wide uppercase">
+                © 2024 The Digital Architect. Designed with intentional asymmetry.
+            </p>
+<div class="flex gap-8">
+<a class="text-slate-500 hover:text-sky-300 transition-colors font-['Inter'] text-sm tracking-wide uppercase opacity-80 hover:opacity-100" href="#">GitHub</a>
+<a class="text-slate-500 hover:text-sky-300 transition-colors font-['Inter'] text-sm tracking-wide uppercase opacity-80 hover:opacity-100" href="#">LinkedIn</a>
+<a class="text-slate-500 hover:text-sky-300 transition-colors font-['Inter'] text-sm tracking-wide uppercase opacity-80 hover:opacity-100" href="#">Email</a>
+</div>
+</div>
+</footer>
+</body></html>

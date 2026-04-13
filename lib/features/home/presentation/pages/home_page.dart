@@ -1,0 +1,651 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../projects/providers/project_provider.dart';
+
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _homeKey = GlobalKey();
+  final GlobalKey _skillsKey = GlobalKey();
+  final GlobalKey _projectsKey = GlobalKey();
+
+  void _scrollToKey(GlobalKey key) {
+    if (key.currentContext != null) {
+      Scrollable.ensureVisible(
+        key.currentContext!,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.surface,
+      body: Stack(
+        children: [
+          // Main Scrollable Content
+          SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 80), // Padding for nav bar
+                _buildHeroSection(key: _homeKey),
+                _buildSkillsSection(key: _skillsKey),
+                _buildProjectsSection(key: _projectsKey),
+                _buildFooter(),
+              ],
+            ),
+          ),
+          
+          // Fixed Top NavBar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: Container(
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  color: const Color(0xFF0F172A).withOpacity(0.6), // slate-900/60
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'The Editorial Developer',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      
+                      // Desktop Nav Links
+                      if (MediaQuery.of(context).size.width > 768)
+                        Row(
+                          children: [
+                            _NavBarTextButton(
+                              text: 'Home',
+                              isActive: true,
+                              onTap: () => _scrollToKey(_homeKey),
+                            ),
+                            const SizedBox(width: 32),
+                            _NavBarTextButton(
+                              text: 'Skills',
+                              onTap: () => _scrollToKey(_skillsKey),
+                            ),
+                            const SizedBox(width: 32),
+                            _NavBarTextButton(
+                              text: 'Projects',
+                              onTap: () => _scrollToKey(_projectsKey),
+                            ),
+                          ],
+                        ),
+                      
+                      // Action Icons
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.dark_mode, color: AppTheme.primary),
+                            onPressed: () {
+                              // Toggle basic theme mock
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.admin_panel_settings, color: AppTheme.primary),
+                            onPressed: () {
+                              context.push('/login');
+                            },
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroSection({Key? key}) {
+    final isDesktop = MediaQuery.of(context).size.width > 1024;
+    return Container(
+      key: key,
+      constraints: const BoxConstraints(minHeight: 800),
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 64 : 32, vertical: 64),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1280),
+          child: Flex(
+            direction: isDesktop ? Axis.horizontal : Axis.vertical,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Text Content (Left on Desktop, Bottom on Mobile)
+              Expanded(
+                flex: isDesktop ? 6 : 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'ARCHITECTURE & PERFORMANCE',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Senior Android &',
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                     ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [AppTheme.primary, AppTheme.primaryContainer],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ).createShader(bounds),
+                      child: Text(
+                        'Flutter Developer',
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppTheme.secondary,
+                        fontSize: 20,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.primary, AppTheme.primaryContainer],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primary.withOpacity(0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              )
+                            ]
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: () async {
+                              final Uri emailLaunchUri = Uri(
+                                scheme: 'mailto',
+                                path: 'hello@example.com',
+                                query: 'subject=Contact from Portfolio',
+                              );
+                              await launchUrl(emailLaunchUri);
+                            },
+                            child: const Text('Contact Me', style: TextStyle(color: AppTheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.outlineVariant),
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            foregroundColor: AppTheme.onSurface,
+                          ),
+                          onPressed: () {},
+                          child: const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              if (!isDesktop) const SizedBox(height: 64),
+              // Image Content (Right on Desktop, Top on Mobile physically, but structurally order is reversed in HTML to put image on top on mobile using classes)
+              // Wait, in Stitch it says order-1 for image on mobile. We will just render it below text for simplicity unless specified.
+              Expanded(
+                flex: isDesktop ? 5 : 0,
+                child: Align(
+                  alignment: isDesktop ? Alignment.centerRight : Alignment.center,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: isDesktop ? 450 : 300,
+                        height: isDesktop ? 550 : 380,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: AppTheme.surfaceContainer,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.4),
+                              blurRadius: 40,
+                              offset: const Offset(0, 20),
+                            )
+                          ],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            ColorFiltered(
+                              colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                              child: Image.network(
+                                'https://lh3.googleusercontent.com/aida-public/AB6AXuB9db80P2Ac2OYZmW9P90DIhW09mtAR6VNGpWgzDvAUv3ZEzvU0nBqstWlUDsH2j38M3JbhstrRh_7oqXK2qLY2np3tAzIxJAux1fqcFlOuMsv48AfiDMe3umRxVDm0Rq4SrAlnrd4z14lTE9OQ_PTyL2i-mKNkiw1YiqzGvOAB8kNOjHcAnVmaN9o7dy7JXgXhl5pAKSUvHBmx7GzqKQHY8eN9WW4f8ZSnLI9pLrXYPdLlURHy0gcq-MRdGrMakKVolqPnJd892g4',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [AppTheme.surface.withOpacity(0.8), Colors.transparent],
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -24,
+                        left: -24,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '8+',
+                                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                  color: AppTheme.onPrimaryContainer,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              Text(
+                                'YEARS EXPERIENCE',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: AppTheme.onPrimaryContainer.withOpacity(0.8),
+                                  letterSpacing: 2.0,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkillsSection({Key? key}) {
+    return Container(
+      key: key,
+      width: double.infinity,
+      color: AppTheme.surfaceContainerLow,
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1280),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'The Toolkit',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              Container(width: 80, height: 4, color: AppTheme.primary),
+              const SizedBox(height: 64),
+              Wrap(
+                spacing: 24,
+                runSpacing: 24,
+                children: [
+                  _SkillCard(icon: Icons.terminal, title: 'Dart'),
+                  _SkillCard(icon: Icons.flutter_dash, title: 'Flutter'),
+                  _SkillCard(icon: Icons.developer_mode, title: 'Kotlin'),
+                  _SkillCard(icon: Icons.coffee, title: 'Java'),
+                  _SkillCard(icon: Icons.local_fire_department, title: 'Firebase'),
+                  _SkillCard(icon: Icons.cloud, title: 'Google Cloud'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProjectsSection({Key? key}) {
+    final projectsAsync = ref.watch(projectsProvider);
+    final isDesktop = MediaQuery.of(context).size.width > 768;
+
+    return Container(
+      key: key,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1280),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Featured Projects', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'A selection of curated mobile applications focused on fintech, health, and enterprise solutions.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.secondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isDesktop)
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
+                          child: const Row(
+                            children: [
+                              Text('View All Archives', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                ],
+              ),
+              const SizedBox(height: 64),
+              projectsAsync.when(
+                data: (projects) {
+                  return Wrap(
+                    spacing: 48,
+                    runSpacing: 48,
+                    children: projects.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final project = entry.value;
+                      // Staggering effect on desktop
+                      return Padding(
+                        padding: EdgeInsets.only(top: (isDesktop && index % 2 != 0) ? 96.0 : 0.0),
+                        child: _ProjectCard(project: project),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+                error: (err, stack) => Text('Error loading projects: $err', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
+      decoration: BoxDecoration(
+        color: const Color(0xFF020617), // slate-950
+        border: Border(top: BorderSide(color: Colors.blueGrey.withOpacity(0.2))),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1280),
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            runSpacing: 24,
+            spacing: 24,
+            children: [
+              const Text(
+                '© 2024 The Digital Architect. Designed with intentional asymmetry.',
+                style: TextStyle(color: Colors.grey, fontSize: 14, letterSpacing: 0.5),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(onPressed: (){}, child: const Text('GITHUB', style: TextStyle(color: Colors.grey))),
+                  TextButton(onPressed: (){}, child: const Text('LINKEDIN', style: TextStyle(color: Colors.grey))),
+                  TextButton(onPressed: (){}, child: const Text('EMAIL', style: TextStyle(color: Colors.grey))),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarTextButton extends StatelessWidget {
+  final String text;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavBarTextButton({required this.text, this.isActive = false, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          border: isActive ? const Border(bottom: BorderSide(color: AppTheme.primary, width: 2)) : null,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isActive ? AppTheme.primary : AppTheme.secondary,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SkillCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _SkillCard({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 180,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: AppTheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppTheme.primary),
+          ),
+          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(color: AppTheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectCard extends StatelessWidget {
+  final dynamic project;
+  const _ProjectCard({required this.project});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 500,
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          )
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image Container
+          SizedBox(
+            height: 400,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600',
+                  fit: BoxFit.cover,
+                ),
+                // Tags overlaid on image
+                Positioned(
+                  top: 24,
+                  left: 24,
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            color: AppTheme.surface.withOpacity(0.8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            child: const Text('NATIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            color: AppTheme.primary.withOpacity(0.8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            child: const Text('FLUTTER', style: TextStyle(color: AppTheme.onPrimary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          
+          // Details Container
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  project.title,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: AppTheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  project.shortDescription,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.secondary,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                TextButton(
+                  onPressed: () {
+                    context.push('/project/\${project.id}');
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primary,
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('View Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(width: 8),
+                      Icon(Icons.chevron_right),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
