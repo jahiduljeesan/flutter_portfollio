@@ -274,6 +274,8 @@ class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
   final _shortDescController = TextEditingController();
   final _fullDescController = TextEditingController();
   final _imageController = TextEditingController();
+  final _coverPhotoController = TextEditingController();
+  final _logoController = TextEditingController();
   final _sourceController = TextEditingController();
   final _downloadController = TextEditingController();
   final _featuresController = TextEditingController();
@@ -287,7 +289,9 @@ class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
       _titleController.text = widget.project!.title;
       _shortDescController.text = widget.project!.shortDescription;
       _fullDescController.text = widget.project!.fullDescription;
-      _imageController.text = widget.project!.imageUrls.isNotEmpty ? widget.project!.imageUrls.first : '';
+      _imageController.text = widget.project!.imageUrls.join(', ');
+      _coverPhotoController.text = widget.project!.coverPhoto ?? '';
+      _logoController.text = widget.project!.logo ?? '';
       _sourceController.text = widget.project!.sourceCodeLink ?? '';
       _downloadController.text = widget.project!.downloadLink ?? '';
       _featuresController.text = widget.project!.features.join(', ');
@@ -304,7 +308,9 @@ class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
       shortDescription: _shortDescController.text.trim(),
       fullDescription: _fullDescController.text.trim(),
       features: _featuresController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
-      imageUrls: _imageController.text.trim().isNotEmpty ? [_imageController.text.trim()] : [],
+      imageUrls: _imageController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+      coverPhoto: _coverPhotoController.text.trim().isNotEmpty ? _coverPhotoController.text.trim() : null,
+      logo: _logoController.text.trim().isNotEmpty ? _logoController.text.trim() : null,
       sourceCodeLink: _sourceController.text.trim().isNotEmpty ? _sourceController.text.trim() : null,
       downloadLink: _downloadController.text.trim().isNotEmpty ? _downloadController.text.trim() : null,
       isFeatured: _isFeatured,
@@ -361,7 +367,15 @@ class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
               const SizedBox(height: 16),
               _buildTextField('Features (comma separated)', _featuresController, maxLines: 2),
               const SizedBox(height: 16),
-              _buildTextField('Image URL', _imageController),
+              _buildTextField('Screenshots URLs (comma separated)', _imageController, maxLines: 2),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField('Cover Photo URL', _coverPhotoController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField('Logo URL', _logoController)),
+                ],
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [

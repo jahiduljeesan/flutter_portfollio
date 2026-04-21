@@ -16,6 +16,8 @@ class FirebaseProjectRepository implements ProjectRepository {
       fullDescription: project.fullDescription,
       features: project.features,
       imageUrls: project.imageUrls,
+      coverPhoto: project.coverPhoto,
+      logo: project.logo,
       sourceCodeLink: project.sourceCodeLink,
       downloadLink: project.downloadLink,
       isFeatured: project.isFeatured,

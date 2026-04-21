@@ -5,6 +5,8 @@ class Project {
   final String fullDescription;
   final List<String> features;
   final List<String> imageUrls;
+  final String? coverPhoto;
+  final String? logo;
   final String? sourceCodeLink;
   final String? downloadLink;
   final bool isFeatured;
@@ -17,6 +19,8 @@ class Project {
     required this.fullDescription,
     required this.features,
     required this.imageUrls,
+    this.coverPhoto,
+    this.logo,
     this.sourceCodeLink,
     this.downloadLink,
     this.isFeatured = false,
@@ -31,6 +35,8 @@ class Project {
       fullDescription: map['fullDescription'] ?? '',
       features: List<String>.from(map['features'] ?? []),
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
+      coverPhoto: map['coverPhoto'],
+      logo: map['logo'],
       sourceCodeLink: map['sourceCodeLink'],
       downloadLink: map['downloadLink'],
       isFeatured: map['isFeatured'] ?? false,
@@ -45,6 +51,8 @@ class Project {
       'fullDescription': fullDescription,
       'features': features,
       'imageUrls': imageUrls,
+      'coverPhoto': coverPhoto,
+      'logo': logo,
       'sourceCodeLink': sourceCodeLink,
       'downloadLink': downloadLink,
       'isFeatured': isFeatured,
