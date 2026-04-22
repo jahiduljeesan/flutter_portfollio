@@ -598,7 +598,9 @@ class _ProjectCard extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600',
+                  project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
+                      ? project.coverPhoto! 
+                      : (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
                   fit: BoxFit.cover,
                 ),
                 // Tags overlaid on image
@@ -661,7 +663,7 @@ class _ProjectCard extends StatelessWidget {
                 const SizedBox(height: 32),
                 TextButton(
                   onPressed: () {
-                    context.push('/project/\${project.id}');
+                    context.push('/project/${project.id}');
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.primary,

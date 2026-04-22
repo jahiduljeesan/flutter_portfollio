@@ -13,7 +13,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    debugPrint("Firebase not initialized: \$e");
+    debugPrint("Firebase not initialized: $e");
   }
 
   runApp(

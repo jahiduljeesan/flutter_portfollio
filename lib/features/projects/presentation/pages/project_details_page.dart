@@ -29,12 +29,12 @@ class ProjectDetailsPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (project.imageUrls.isNotEmpty)
+                if (project.coverPhoto != null || project.imageUrls.isNotEmpty)
                   SizedBox(
                     height: 400,
                     width: double.infinity,
                     child: Image.network(
-                      project.imageUrls.first,
+                      project.coverPhoto ?? project.imageUrls.first,
                       fit: BoxFit.cover,
                     ),
                   ),
