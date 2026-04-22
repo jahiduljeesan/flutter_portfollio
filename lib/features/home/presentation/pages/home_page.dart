@@ -568,120 +568,171 @@ class _SkillCard extends StatelessWidget {
   }
 }
 
-class _ProjectCard extends StatelessWidget {
+class _ProjectCard extends StatefulWidget {
   final dynamic project;
   const _ProjectCard({required this.project});
 
   @override
+  State<_ProjectCard> createState() => _ProjectCardState();
+}
+
+class _ProjectCardState extends State<_ProjectCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 500,
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerWith(context),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          )
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Container
-          SizedBox(
-            height: 400,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.network(
-                  project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
-                      ? project.coverPhoto! 
-                      : (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
-                  fit: BoxFit.cover,
-                ),
-                // Tags overlaid on image
-                Positioned(
-                  top: 24,
-                  left: 24,
-                  child: Row(
+    final project = widget.project;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 500,
+        transform: _isHovered ? (Matrix4.identity()..translate(0, -12, 0)) : Matrix4.identity(),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceContainerWith(context),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(_isHovered ? 0.4 : 0.2),
+              blurRadius: _isHovered ? 40 : 20,
+              offset: Offset(0, _isHovered ? 20 : 10),
+            )
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Container
+            SizedBox(
+              height: 400,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                   Hero(
+                    tag: 'project-image-${project.id}',
+                    child: Image.network(
+                      project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
+                          ? project.coverPhoto! 
+                          : (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Gradient Overlay for readability
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.1),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Tags overlaid on image
+                  Positioned(
+                    top: 24,
+                    left: 24,
+                    child: Row(
+                      children: [
+                        _buildTag('NATIVE', Colors.white.withOpacity(0.2)),
+                        const SizedBox(width: 8),
+                        _buildTag('FLUTTER', AppTheme.primary.withOpacity(0.8), isPrimary: true),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            
+            // Details Container
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    project.title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppTheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    project.shortDescription,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.secondary,
+                      height: 1.6,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                          child: Container(
-                            color: AppTheme.surface.withOpacity(0.8),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            child: const Text('NATIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                          ),
+                      TextButton(
+                        onPressed: () {
+                          context.push('/project/${project.id}');
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.primary,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('View Project', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const SizedBox(width: 8),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              transform: _isHovered ? (Matrix4.identity()..translate(4, 0, 0)) : Matrix4.identity(),
+                              child: const Icon(Icons.arrow_forward_rounded, size: 20),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                          child: Container(
-                            color: AppTheme.primary.withOpacity(0.8),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            child: const Text('FLUTTER', style: TextStyle(color: AppTheme.onPrimary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                          ),
-                        ),
+                      // Optional: View Count or Date
+                      Text(
+                        '${project.viewCount} views',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.secondary.withOpacity(0.5)),
                       ),
                     ],
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String text, Color color, {bool isPrimary = false}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          color: color,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isPrimary ? AppTheme.onPrimary : Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
             ),
           ),
-          
-          // Details Container
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  project.title,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppTheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  project.shortDescription,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.secondary,
-                    height: 1.6,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                TextButton(
-                  onPressed: () {
-                    context.push('/project/${project.id}');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppTheme.primary,
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('View Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(width: 8),
-                      Icon(Icons.chevron_right),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
