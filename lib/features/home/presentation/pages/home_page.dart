@@ -210,14 +210,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            onPressed: () async {
-                              final Uri emailLaunchUri = Uri(
-                                scheme: 'mailto',
-                                path: 'hello@example.com',
-                                query: 'subject=Contact from Portfolio',
-                              );
-                              await launchUrl(emailLaunchUri);
-                            },
+                            onPressed: () => _showContactDialog(context),
                             child: const Text('Contact Me', style: TextStyle(color: AppTheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
@@ -281,13 +274,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            ColorFiltered(
-                              colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                              child: Image.network(
-                                'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop', // High quality placeholder developer look
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                            Consumer(builder: (context, ref, child) {
+                              final devImageAsync = ref.watch(devImageProvider);
+                              final imageUrl = devImageAsync.when(
+                                data: (url) => (url != null && url.isNotEmpty) ? url : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
+                                loading: () => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
+                                error: (_, __) => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
+                              );
+                              return ColorFiltered(
+                                colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }),
                             Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -445,19 +446,29 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     );
                   }
-                  return Wrap(
-                    spacing: 48,
-                    runSpacing: 48,
-                    children: projects.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final project = entry.value;
-                      // Staggering effect on desktop
-                      return Padding(
-                        padding: EdgeInsets.only(top: (isDesktop && index % 2 != 0) ? 96.0 : 0.0),
-                        child: _ProjectCard(project: project),
-                      );
-                    }).toList(),
-                  );
+                  if (isDesktop) {
+                    final leftCol = <Widget>[];
+                    final rightCol = <Widget>[];
+                    for (int i = 0; i < projects.length; i++) {
+                      if (i % 2 == 0) {
+                        leftCol.add(Padding(padding: const EdgeInsets.only(bottom: 64), child: _ProjectCard(project: projects[i])));
+                      } else {
+                        rightCol.add(Padding(padding: const EdgeInsets.only(bottom: 64), child: _ProjectCard(project: projects[i])));
+                      }
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: Column(children: leftCol)),
+                        const SizedBox(width: 48),
+                        Expanded(child: Padding(padding: const EdgeInsets.only(top: 120), child: Column(children: rightCol))),
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      children: projects.map((p) => Padding(padding: const EdgeInsets.only(bottom: 48), child: _ProjectCard(project: p))).toList(),
+                    );
+                  }
                 },
                 loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
                 error: (err, stack) => Text('Error loading projects: $err', style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -503,6 +514,76 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
     );
   }
+  void _showContactDialog(BuildContext context) {
+    final subjectController = TextEditingController();
+    final messageController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surfaceContainerHighestWith(context),
+        title: Text('Start a Conversation', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        content: SizedBox(
+          width: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: subjectController,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Subject',
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.outlineVariant), borderRadius: BorderRadius.circular(8)),
+                  focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.primary), borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: AppTheme.surfaceContainerLowestWith(context),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: messageController,
+                maxLines: 5,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Your Message',
+                  alignLabelWithHint: true,
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.outlineVariant), borderRadius: BorderRadius.circular(8)),
+                  focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.primary), borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: AppTheme.surfaceContainerLowestWith(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              final subject = Uri.encodeComponent(subjectController.text);
+              final body = Uri.encodeComponent(messageController.text);
+              final Uri emailLaunchUri = Uri.parse('mailto:hello@example.com?subject=$subject&body=$body');
+              await launchUrl(emailLaunchUri);
+              if (context.mounted) Navigator.pop(context);
+            },
+            icon: const Icon(Icons.send_rounded, size: 18),
+            label: const Text('Send Message', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary, 
+              foregroundColor: AppTheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            ),
+          ),
+        ],
+      )
+    );
+  }
+
 }
 
 class _NavBarTextButton extends StatelessWidget {

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,173 +12,229 @@ class ProjectDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projectAsync = ref.watch(projectDetailsProvider(projectId));
-    final isDesktop = MediaQuery.of(context).size.width > 1024;
 
     return Scaffold(
       backgroundColor: AppTheme.surfaceContainerLowestWith(context),
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppTheme.surfaceContainerLowestWith(context),
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.black.withOpacity(0.4),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-              onPressed: () => context.go('/'),
-            ),
-          ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface),
+          onPressed: () => context.go('/'),
         ),
+        title: projectAsync.when(
+          data: (project) => Text(
+            project.title, 
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface, 
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            )
+          ),
+          loading: () => const SizedBox(),
+          error: (_, __) => const SizedBox(),
+        ),
+        centerTitle: true,
       ),
       body: projectAsync.when(
         data: (project) {
+          final logoUrl = project.logo ?? project.coverPhoto ?? (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/200/200');
+          
           return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Header Image
-                Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Hero(
-                      tag: 'project-image-${project.id}',
-                      child: Container(
-                        height: 500,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(
-                              project.coverPhoto ?? (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Section (App Store Vibe)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // App Icon
+                          Hero(
+                            tag: 'project-image-${project.id}',
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(28),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 12),
+                                  )
+                                ],
+                                image: DecorationImage(
+                                  image: NetworkImage(logoUrl),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                            fit: BoxFit.cover,
                           ),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.3),
-                                Colors.transparent,
-                                AppTheme.surfaceContainerLowestWith(context).withOpacity(0.8),
+                          const SizedBox(width: 32),
+                          // Title & Actions
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  project.title,
+                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.5,
+                                    height: 1.1,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  project.shortDescription,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: AppTheme.secondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: [
+                                    if (project.downloadLink != null)
+                                      _buildGetButton(
+                                        context, 
+                                        label: 'GET', 
+                                        icon: Icons.cloud_download_rounded,
+                                        isPrimary: true,
+                                        onPressed: () => launchUrl(Uri.parse(project.downloadLink!)),
+                                      ),
+                                    if (project.sourceCodeLink != null)
+                                      _buildGetButton(
+                                        context, 
+                                        label: 'GITHUB', 
+                                        icon: Icons.code_rounded,
+                                        isPrimary: false,
+                                        onPressed: () => launchUrl(Uri.parse(project.sourceCodeLink!)),
+                                      ),
+                                  ],
+                                )
                               ],
                             ),
+                          )
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 48),
+                      const Divider(color: AppTheme.outlineVariant, height: 1),
+                      const SizedBox(height: 48),
+
+                      // Screenshots Gallery
+                      if (project.imageUrls.isNotEmpty)...[
+                        Text(
+                          'Preview',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: 500, // Phone screenshot ratio
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: project.imageUrls.length,
+                            clipBehavior: Clip.none,
+                            separatorBuilder: (_, __) => const SizedBox(width: 24),
+                            itemBuilder: (context, index) {
+                              final imageUrl = project.imageUrls[index];
+                              return GestureDetector(
+                                onTap: () => _openImagePreview(context, imageUrl),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.2), width: 1.5),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(22.5), // Inner radius
+                                    child: Image.network(
+                                      imageUrl,
+                                      height: 500,
+                                      fit: BoxFit.cover, // With height constraint, it will wrap content width
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        const Divider(color: AppTheme.outlineVariant, height: 1),
+                        const SizedBox(height: 48),
+                      ],
 
-                // Main Content Card
-                Transform.translate(
-                  offset: const Offset(0, -60),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1000),
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 24),
-                      elevation: 40,
-                      shadowColor: Colors.black.withOpacity(0.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                      color: AppTheme.surfaceContainerWith(context),
-                      child: Padding(
-                        padding: EdgeInsets.all(isDesktop ? 64 : 32),
-                        child: Column(
+                      // Description Section
+                      Text(
+                        'About this app',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        project.fullDescription,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                          height: 1.6,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 48),
+                      const Divider(color: AppTheme.outlineVariant, height: 1),
+                      const SizedBox(height: 48),
+                      
+                      // Key Features Section
+                      Text(
+                        'Features',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ...project.features.map((f) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Action Buttons (Moved under cover photo in the card)
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              children: [
-                                if (project.downloadLink != null)
-                                  _buildActionButton(
-                                    context,
-                                    label: 'Download App',
-                                    icon: Icons.download_rounded,
-                                    isPrimary: true,
-                                    onPressed: () => launchUrl(Uri.parse(project.downloadLink!)),
-                                  ),
-                                if (project.sourceCodeLink != null)
-                                  _buildActionButton(
-                                    context,
-                                    label: 'Source Code',
-                                    icon: Icons.code_rounded,
-                                    isPrimary: false,
-                                    onPressed: () => launchUrl(Uri.parse(project.sourceCodeLink!)),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 48),
-
-                            Text(
-                              project.title,
-                              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -1.0,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              project.fullDescription,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: AppTheme.secondary,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 48),
-                            
-                            // Key Features Section
-                            Text(
-                              'Key Features',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            _buildFeaturesList(context, project.features),
-                            
-                            const SizedBox(height: 48),
-                            
-                            // Screenshots Gallery (New Section)
-                            if (project.imageUrls.isNotEmpty) ...[
-                              Text(
-                                'Gallery',
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                            const Icon(Icons.star_rounded, color: AppTheme.primary, size: 24),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                f, 
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  height: 1.5,
                                 ),
-                              ),
-                              const SizedBox(height: 24),
-                              SizedBox(
-                                height: 400,
-                                child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: project.imageUrls.length,
-                                  separatorBuilder: (_, __) => const SizedBox(width: 16),
-                                  itemBuilder: (context, index) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.network(
-                                        project.imageUrls[index],
-                                        fit: BoxFit.cover,
-                                        width: 280,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
+                              )
+                            ),
                           ],
                         ),
-                      ),
-                    ),
+                      )),
+                      const SizedBox(height: 80), // Bottom padding
+                    ],
                   ),
                 ),
-                const SizedBox(height: 60),
-              ],
+              ),
             ),
           );
         },
@@ -189,63 +244,67 @@ class ProjectDetailsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, {
+  void _openImagePreview(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      useSafeArea: false,
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black.withOpacity(0.9),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.download_rounded, color: Colors.white),
+                tooltip: 'Download or View Original',
+                onPressed: () {
+                  launchUrl(Uri.parse(imageUrl));
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGetButton(BuildContext context, {
     required String label,
     required IconData icon,
     required bool isPrimary,
     required VoidCallback onPressed,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: isPrimary ? const LinearGradient(
-          colors: [AppTheme.primary, AppTheme.primaryContainer],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ) : null,
-        borderRadius: BorderRadius.circular(16),
-        border: !isPrimary ? Border.all(color: AppTheme.outlineVariant) : null,
-        boxShadow: isPrimary ? [
-          BoxShadow(
-            color: AppTheme.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          )
-        ] : null,
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isPrimary ? AppTheme.primary : AppTheme.surfaceContainerHighestWith(context),
+        foregroundColor: isPrimary ? AppTheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)), // Pill shape like App Store
+        elevation: 0,
       ),
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: isPrimary ? AppTheme.onPrimary : Theme.of(context).colorScheme.onSurface,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        icon: Icon(icon, size: 20),
-        label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, letterSpacing: 0.5)),
+        ],
       ),
-    );
-  }
-
-  Widget _buildFeaturesList(BuildContext context, List<String> features) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: features.map((f) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerHighestWith(context).withOpacity(0.3),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.check_circle_outline, color: AppTheme.primary, size: 20),
-            const SizedBox(width: 12),
-            Text(f, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-      )).toList(),
     );
   }
 }

@@ -125,7 +125,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           const SizedBox(height: 48),
           Text('Global Settings', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 24),
-          const _CVSettingsCard(),
+          const _GeneralSettingsCard(),
           const SizedBox(height: 24),
           const _AdminCredentialsCard(),
         ],
@@ -407,39 +407,48 @@ class _ProjectFormDialogState extends ConsumerState<_ProjectFormDialog> {
   }
 }
 
-class _CVSettingsCard extends StatefulWidget {
-  const _CVSettingsCard();
+class _GeneralSettingsCard extends StatefulWidget {
+  const _GeneralSettingsCard();
 
   @override
-  State<_CVSettingsCard> createState() => _CVSettingsCardState();
+  State<_GeneralSettingsCard> createState() => _GeneralSettingsCardState();
 }
 
-class _CVSettingsCardState extends State<_CVSettingsCard> {
+class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
   final TextEditingController _cvController = TextEditingController();
+  final TextEditingController _devImageController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCV();
+    _loadSettings();
   }
 
-  Future<void> _loadCV() async {
+  Future<void> _loadSettings() async {
     final doc = await FirebaseFirestore.instance.collection('settings').doc('general').get();
-    if (doc.exists && doc.data()!.containsKey('cv_url')) {
-      _cvController.text = doc.data()!['cv_url'];
+    if (doc.exists) {
+      if (doc.data()!.containsKey('cv_url')) {
+        _cvController.text = doc.data()!['cv_url'];
+      }
+      if (doc.data()!.containsKey('dev_image_url')) {
+        _devImageController.text = doc.data()!['dev_image_url'];
+      }
     }
   }
 
-  Future<void> _saveCV() async {
+  Future<void> _saveSettings() async {
     setState(() => _isLoading = true);
     try {
       await FirebaseFirestore.instance.collection('settings').doc('general').set(
-        {'cv_url': _cvController.text.trim()}, 
+        {
+          'cv_url': _cvController.text.trim(),
+          'dev_image_url': _devImageController.text.trim(),
+        }, 
         SetOptions(merge: true)
       );
       if(mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CV Link Updated globally.')));
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Global Settings Updated.')));
       }
     } catch (e) {
       if(mounted) {
@@ -463,10 +472,10 @@ class _CVSettingsCardState extends State<_CVSettingsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Curriculum Vitae (CV) Link', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          Text('Global Configurations', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
-          Text('Provide a public Google Drive or Dropbox link for the Download button.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
-          const SizedBox(height: 16),
+          Text('Manage public links such as your Curriculum Vitae and developer profile picture.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
@@ -481,8 +490,20 @@ class _CVSettingsCardState extends State<_CVSettingsCard> {
                 ),
               ),
               const SizedBox(width: 16),
+              Expanded(
+                child: TextField(
+                  controller: _devImageController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Developer Image URL',
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: _isLoading ? null : _saveCV,
+                onPressed: _isLoading ? null : _saveSettings,
                 icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
                 label: const Text('Save'),
                 style: ElevatedButton.styleFrom(

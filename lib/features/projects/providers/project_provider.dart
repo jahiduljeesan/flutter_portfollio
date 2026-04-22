@@ -25,3 +25,13 @@ final cvProvider = StreamProvider<String?>((ref) {
     return null;
   });
 });
+
+final devImageProvider = StreamProvider<String?>((ref) {
+  return FirebaseFirestore.instance.collection('settings').doc('general').snapshots().map((doc) {
+    if (doc.exists) {
+      return doc.data()?['dev_image_url'] as String?;
+    }
+    return null;
+  });
+});
+
