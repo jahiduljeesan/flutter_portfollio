@@ -70,7 +70,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Jahidul.dev',
+                        'JahidulJeesan',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               final imageUrl = devImageAsync.when(
                                 data: (url) => (url != null && url.isNotEmpty) ? url : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
                                 loading: () => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
-                                error: (_, __) => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
+                                error: (_, _) => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
                               );
                               return ColorFiltered(
                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
@@ -497,7 +497,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             spacing: 24,
             children: [
               const Text(
-                '© 2024 The Digital Architect. Designed with intentional asymmetry.',
+                '©All right reserved by Md Jahidul Islam.',
                 style: TextStyle(color: Colors.grey, fontSize: 14, letterSpacing: 0.5),
               ),
               Row(
