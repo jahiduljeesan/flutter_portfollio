@@ -46,7 +46,8 @@ class ProjectDetailsPage extends ConsumerWidget {
               project.coverPhoto ??
               (project.imageUrls.isNotEmpty
                   ? project.imageUrls.first
-                  : 'https://picsum.photos/seed/placeholder/200/200');
+                  : 'https://picsum.photos/seed/placeholder/200/200'
+              );
 
           return SingleChildScrollView(
             child: Center(
@@ -130,6 +131,7 @@ class ProjectDetailsPage extends ConsumerWidget {
                                         ).colorScheme.onSurface,
                                       ),
                                 ),
+                                //
                                 const SizedBox(height: 8),
                                 Text(
                                   project.shortDescription,
