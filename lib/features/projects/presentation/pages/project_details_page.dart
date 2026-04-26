@@ -131,7 +131,6 @@ class ProjectDetailsPage extends ConsumerWidget {
                                         ).colorScheme.onSurface,
                                       ),
                                 ),
-
                                 const SizedBox(height: 8),
                                 Text(
                                   project.shortDescription,
