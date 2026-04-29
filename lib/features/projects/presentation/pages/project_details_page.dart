@@ -84,7 +84,6 @@ class ProjectDetailsPage extends ConsumerWidget {
                             ),
                           ),
                         ),
-
                       // Header Section (App Store Vibe)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
