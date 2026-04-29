@@ -130,7 +130,7 @@ class ProjectDetailsPage extends ConsumerWidget {
                                           context,
                                         ).colorScheme.onSurface,
                                       ),
-                                ),
+                                ),kjk
                                 const SizedBox(height: 8),
                                 Text(
                                   project.shortDescription,
