@@ -97,6 +97,7 @@ class ProjectDetailsPage extends ConsumerWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(28),
                                 boxShadow: [
+                                  //ljdls
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.15),
                                     blurRadius: 24,
