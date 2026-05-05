@@ -32,7 +32,7 @@ class PortfolioApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     
     return MaterialApp.router(
-      title: 'Digital Architect\'s Atelier',
+      title: 'Jahidul Jeesan | Portfolio',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
