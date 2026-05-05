@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../projects/providers/project_provider.dart';
@@ -19,13 +20,28 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _skillsKey = GlobalKey();
   final GlobalKey _projectsKey = GlobalKey();
+  double _scrollOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      setState(() => _scrollOffset = _scrollController.offset);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _scrollToKey(GlobalKey key) {
     if (key.currentContext != null) {
       Scrollable.ensureVisible(
         key.currentContext!,
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOutCubic,
       );
     }
   }
@@ -36,9 +52,33 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isDark = themeMode == ThemeMode.dark;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFF020617), // Deep space background
       body: Stack(
         children: [
+          // Premium Background Vibe
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFF1E1B4B), // Deep purple glow
+                    Color(0xFF020617), // Slate 950 base
+                  ],
+                  center: Alignment.topLeft,
+                  radius: 1.5,
+                ),
+              ),
+            ),
+          ),
+          // Animated Grid Overlay
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: CustomPaint(
+                painter: _GridPainter(),
+              ),
+            ),
+          ),
           // Main Scrollable Content
           SingleChildScrollView(
             controller: _scrollController,
@@ -155,12 +195,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.0,
                       ),
-                    ),
+                    ).animate().fade().slideY(begin: 0.2),
                     const SizedBox(height: 16),
                     Text(
                       'Md. Jahidul Islam',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 56),
-                    ),
+                    ).animate().fade().slideY(begin: 0.2),
                      ShaderMask(
                       shaderCallback: (bounds) => const LinearGradient(
                         colors: [AppTheme.primary, AppTheme.primaryContainer],
@@ -174,7 +214,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           fontSize: 56,
                         ),
                       ),
-                    ),
+                    ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
                     const SizedBox(height: 24),
                     Text(
                       'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.',
@@ -183,7 +223,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         fontSize: 20,
                         height: 1.6,
                       ),
-                    ),
+                    ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
                     const SizedBox(height: 40),
                     Row(
                       children: [
@@ -242,7 +282,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           }
                         )
                       ],
-                    )
+                    ).animate(delay: 400.ms).fade().slideY(begin: 0.2)
                   ],
                 ),
               ),
@@ -333,7 +373,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       )
                     ],
                   ),
-                ),
+                ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fade(),
               ),
             ],
           ),
@@ -343,10 +383,27 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildSkillsSection({Key? key}) {
+    const skills = [
+      (Icons.terminal, 'Dart'),
+      (Icons.flutter_dash, 'Flutter'),
+      (Icons.developer_mode, 'Kotlin'),
+      (Icons.coffee, 'Java'),
+      (Icons.local_fire_department, 'Firebase'),
+      (Icons.cloud, 'Google Cloud'),
+    ];
     return Container(
       key: key,
       width: double.infinity,
-      color: AppTheme.surfaceContainerLowWith(context),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0F172A),
+            const Color(0xFF1E1B4B).withOpacity(0.6),
+          ],
+        ),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
       child: Center(
         child: ConstrainedBox(
@@ -354,24 +411,41 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'The Toolkit',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+              _ScrollReveal(
+                scrollOffset: _scrollOffset,
+                triggerAt: 600,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'The Toolkit',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.w800, color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 80, height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              Container(width: 80, height: 4, color: AppTheme.primary),
               const SizedBox(height: 64),
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
-                children: [
-                  _SkillCard(icon: Icons.terminal, title: 'Dart'),
-                  _SkillCard(icon: Icons.flutter_dash, title: 'Flutter'),
-                  _SkillCard(icon: Icons.developer_mode, title: 'Kotlin'),
-                  _SkillCard(icon: Icons.coffee, title: 'Java'),
-                  _SkillCard(icon: Icons.local_fire_department, title: 'Firebase'),
-                  _SkillCard(icon: Icons.cloud, title: 'Google Cloud'),
-                ],
+                children: skills.asMap().entries.map((e) =>
+                  _ScrollReveal(
+                    scrollOffset: _scrollOffset,
+                    triggerAt: 700,
+                    delay: Duration(milliseconds: e.key * 80),
+                    child: _SkillCard(icon: e.value.$1, title: e.value.$2),
+                  )
+                ).toList(),
               ),
             ],
           ),
@@ -394,7 +468,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              _ScrollReveal(
+                scrollOffset: _scrollOffset,
+                triggerAt: 1200,
+                child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -402,7 +479,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Featured Projects', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        Text('Featured Projects', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
                         const SizedBox(height: 16),
                         Text(
                           'A selection of curated mobile applications focused on fintech, health, and enterprise solutions.',
@@ -412,24 +489,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   ),
                   if (isDesktop)
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
-                          child: const Row(
-                            children: [
-                              Text('View All Archives', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward),
-                            ],
-                          ),
-                        )
-                      ],
+                    TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
+                      child: const Row(
+                        children: [
+                          Text('View All', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward),
+                        ],
+                      ),
                     )
                 ],
-              ),
+              )),
               const SizedBox(height: 64),
+              // Scroll reveal wrapper handled per-card below
               projectsAsync.when(
                 data: (projects) {
                   if (projects.isEmpty) {
@@ -450,11 +524,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                     final leftCol = <Widget>[];
                     final rightCol = <Widget>[];
                     for (int i = 0; i < projects.length; i++) {
-                      if (i % 2 == 0) {
-                        leftCol.add(Padding(padding: const EdgeInsets.only(bottom: 64), child: _ProjectCard(project: projects[i])));
-                      } else {
-                        rightCol.add(Padding(padding: const EdgeInsets.only(bottom: 64), child: _ProjectCard(project: projects[i])));
-                      }
+                      final card = _ScrollReveal(
+                        scrollOffset: _scrollOffset,
+                        triggerAt: 1350,
+                        delay: Duration(milliseconds: i * 100),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 64),
+                          child: _ProjectCard(project: projects[i]),
+                        ),
+                      );
+                      if (i % 2 == 0) leftCol.add(card);
+                      else rightCol.add(card);
                     }
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,7 +546,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                     );
                   } else {
                     return Column(
-                      children: projects.map((p) => Padding(padding: const EdgeInsets.only(bottom: 48), child: _ProjectCard(project: p))).toList(),
+                      children: projects.asMap().entries.map((e) =>
+                        _ScrollReveal(
+                          scrollOffset: _scrollOffset,
+                          triggerAt: 600,
+                          delay: Duration(milliseconds: e.key * 100),
+                          child: Padding(padding: const EdgeInsets.only(bottom: 48), child: _ProjectCard(project: e.value)),
+                        )
+                      ).toList(),
                     );
                   }
                 },
@@ -503,9 +590,20 @@ class _HomePageState extends ConsumerState<HomePage> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextButton(onPressed: (){}, child: const Text('GITHUB', style: TextStyle(color: Colors.grey))),
-                  TextButton(onPressed: (){}, child: const Text('LINKEDIN', style: TextStyle(color: Colors.grey))),
-                  TextButton(onPressed: (){}, child: const Text('EMAIL', style: TextStyle(color: Colors.grey))),
+                  _SocialIcon(
+                    assetPath: 'assets/icons/github_logo.png',
+                    onTap: () => launchUrl(Uri.parse('https://github.com/jahiduljeesan')),
+                  ),
+                  const SizedBox(width: 16),
+                  _SocialIcon(
+                    assetPath: 'assets/icons/linkedin_logo.png',
+                    onTap: () => launchUrl(Uri.parse('https://linkedin.com/in/jahiduljeesan')),
+                  ),
+                  const SizedBox(width: 16),
+                  _SocialIcon(
+                    assetPath: 'assets/icons/email_logo.png',
+                    onTap: () => launchUrl(Uri.parse('mailto:hello@example.com')),
+                  ),
                 ],
               )
             ],
@@ -615,35 +713,61 @@ class _NavBarTextButton extends StatelessWidget {
   }
 }
 
-class _SkillCard extends StatelessWidget {
+class _SkillCard extends StatefulWidget {
   final IconData icon;
   final String title;
 
   const _SkillCard({required this.icon, required this.title});
 
   @override
+  State<_SkillCard> createState() => _SkillCardState();
+}
+
+class _SkillCardState extends State<_SkillCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 180,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerWith(context),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceContainerHighestWith(context),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppTheme.primary),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        width: 180,
+        padding: const EdgeInsets.all(32),
+        transform: _isHovered ? (Matrix4.identity()..translate(0, -8, 0)) : Matrix4.identity(),
+        decoration: BoxDecoration(
+          color: _isHovered ? AppTheme.primary.withOpacity(0.05) : Colors.white.withOpacity(0.02),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: _isHovered ? AppTheme.primary.withOpacity(0.5) : Colors.white.withOpacity(0.05),
+            width: 1.5,
           ),
-          const SizedBox(height: 16),
-          Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-        ],
+          boxShadow: [
+            if (_isHovered)
+              BoxShadow(
+                color: AppTheme.primary.withOpacity(0.2),
+                blurRadius: 30,
+                spreadRadius: -5,
+              )
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: _isHovered ? AppTheme.primary.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(widget.icon, color: _isHovered ? AppTheme.primary : Colors.white70, size: 28),
+            ),
+            const SizedBox(height: 20),
+            Text(widget.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          ],
+        ),
       ),
     );
   }
@@ -669,14 +793,19 @@ class _ProjectCardState extends State<_ProjectCard> {
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: 500,
         transform: _isHovered ? (Matrix4.identity()..translate(0, -12, 0)) : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerWith(context),
+          color: Colors.white.withOpacity(0.02),
           borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: _isHovered ? AppTheme.primary.withOpacity(0.3) : Colors.white.withOpacity(0.05),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(_isHovered ? 0.4 : 0.2),
+              color: Colors.black.withOpacity(_isHovered ? 0.6 : 0.3),
               blurRadius: _isHovered ? 40 : 20,
               offset: Offset(0, _isHovered ? 20 : 10),
             )
@@ -739,8 +868,9 @@ class _ProjectCardState extends State<_ProjectCard> {
                 children: [
                   Text(
                     project.title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.onSurface,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
@@ -814,6 +944,115 @@ class _ProjectCardState extends State<_ProjectCard> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.white..strokeWidth = 1;
+    for (double i = 0; i < size.width; i += 40) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+    for (double i = 0; i < size.height; i += 40) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _SocialIcon extends StatefulWidget {
+  final String assetPath;
+  final VoidCallback onTap;
+  const _SocialIcon({required this.assetPath, required this.onTap});
+
+  @override
+  State<_SocialIcon> createState() => _SocialIconState();
+}
+
+class _SocialIconState extends State<_SocialIcon> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: _isHovered ? (Matrix4.identity()..scale(1.15)) : Matrix4.identity(),
+          width: 48, height: 48,
+          decoration: BoxDecoration(
+            color: _isHovered ? AppTheme.primary.withOpacity(0.2) : Colors.transparent,
+            shape: BoxShape.circle,
+            boxShadow: _isHovered ? [
+              BoxShadow(color: AppTheme.primary.withOpacity(0.4), blurRadius: 16, spreadRadius: -2)
+            ] : [],
+          ),
+          padding: const EdgeInsets.all(8),
+          child: Image.asset(widget.assetPath, fit: BoxFit.contain),
+        ),
+      ),
+    );
+  }
+}
+
+/// A widget that animates into view when the scroll offset passes [triggerAt].
+class _ScrollReveal extends StatefulWidget {
+  final double scrollOffset;
+  final double triggerAt;
+  final Widget child;
+  final Duration delay;
+
+  const _ScrollReveal({
+    required this.scrollOffset,
+    required this.triggerAt,
+    required this.child,
+    this.delay = Duration.zero,
+  });
+
+  @override
+  State<_ScrollReveal> createState() => _ScrollRevealState();
+}
+
+class _ScrollRevealState extends State<_ScrollReveal> {
+  bool _hasRevealed = false;
+
+  @override
+  void didUpdateWidget(_ScrollReveal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_hasRevealed && widget.scrollOffset >= widget.triggerAt) {
+      if (widget.delay == Duration.zero) {
+        setState(() => _hasRevealed = true);
+      } else {
+        Future.delayed(widget.delay, () {
+          if (mounted) setState(() => _hasRevealed = true);
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_hasRevealed && widget.scrollOffset >= widget.triggerAt && widget.delay == Duration.zero) {
+      _hasRevealed = true;
+    }
+    return AnimatedOpacity(
+      opacity: _hasRevealed ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+      child: AnimatedSlide(
+        offset: _hasRevealed ? Offset.zero : const Offset(0, 0.08),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+        child: widget.child,
       ),
     );
   }
