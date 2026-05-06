@@ -182,7 +182,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       final subtitle = settings['hero_subtitle'] as String? ?? 'Flutter Developer';
       final desc = settings['hero_description'] as String? ?? 'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.';
       final devImage = settings['dev_image_url'] as String?;
-      final displayDevImage = (devImage != null && devImage.isNotEmpty) ? devImage : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop';
+      final displayDevImage = (devImage != null && devImage.isNotEmpty) ? devImage : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg';
       final cvUrl = settings['cv_url'] as String?;
 
       return Container(
