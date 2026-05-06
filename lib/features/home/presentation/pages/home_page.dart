@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/theme_provider.dart';
 import '../../../projects/providers/project_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -48,9 +47,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-    final isDark = themeMode == ThemeMode.dark;
-
     return Scaffold(
       backgroundColor: const Color(0xFF020617), // Deep space background
       body: Stack(
@@ -160,12 +156,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: AppTheme.primary),
-                            onPressed: () {
-                              ref.read(themeModeProvider.notifier).toggle();
-                            },
-                          ),
-                          IconButton(
                             icon: const Icon(Icons.admin_panel_settings, color: AppTheme.primary),
                             onPressed: () {
                               context.push('/login');
@@ -186,216 +176,219 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildHeroSection({Key? key}) {
     final isDesktop = MediaQuery.of(context).size.width > 1024;
-    return Container(
-      key: key,
-      constraints: const BoxConstraints(minHeight: 800),
-      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 64 : 32, vertical: 64),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1280),
-          child: Flex(
-            direction: isDesktop ? Axis.horizontal : Axis.vertical,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Text Content (Left on Desktop, Bottom on Mobile)
-              Expanded(
-                flex: isDesktop ? 6 : 0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'ARCHITECTURE & PERFORMANCE',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
-                      ),
-                    ).animate().fade().slideY(begin: 0.2),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Md. Jahidul Islam',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 56),
-                    ).animate().fade().slideY(begin: 0.2),
-                     ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [AppTheme.primary, AppTheme.primaryContainer],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ).createShader(bounds),
-                      child: Text(
-                        'Flutter Developer',
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: 56,
+    return Consumer(builder: (context, ref, _) {
+      final settings = ref.watch(generalSettingsProvider).value ?? {};
+      final title = settings['hero_title'] as String? ?? 'Md. Jahidul Islam';
+      final subtitle = settings['hero_subtitle'] as String? ?? 'Flutter Developer';
+      final desc = settings['hero_description'] as String? ?? 'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.';
+      final devImage = settings['dev_image_url'] as String?;
+      final displayDevImage = (devImage != null && devImage.isNotEmpty) ? devImage : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop';
+      final cvUrl = settings['cv_url'] as String?;
+
+      return Container(
+        key: key,
+        constraints: const BoxConstraints(minHeight: 800),
+        padding: EdgeInsets.symmetric(horizontal: isDesktop ? 64 : 32, vertical: 64),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1280),
+            child: Flex(
+              direction: isDesktop ? Axis.horizontal : Axis.vertical,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Text Content
+                Expanded(
+                  flex: isDesktop ? 6 : 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'ARCHITECTURE & PERFORMANCE',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
                         ),
-                      ),
-                    ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.secondary,
-                        fontSize: 20,
-                        height: 1.6,
-                      ),
-                    ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
-                    const SizedBox(height: 40),
-                    Row(
+                      ).animate().fade().slideY(begin: 0.2),
+                      const SizedBox(height: 16),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 56),
+                      ).animate().fade().slideY(begin: 0.2),
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [AppTheme.primary, AppTheme.primaryContainer],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(bounds),
+                        child: Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 56,
+                          ),
+                        ),
+                      ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
+                      const SizedBox(height: 24),
+                      Text(
+                        desc,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppTheme.secondary,
+                          fontSize: 20,
+                          height: 1.6,
+                        ),
+                      ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
+                      const SizedBox(height: 40),
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [AppTheme.primary, AppTheme.primaryContainer],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primary.withOpacity(0.4),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                )
+                              ]
+                            ),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () => _showContactDialog(context),
+                              child: const Text('Contact Me', style: TextStyle(color: AppTheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primary.withOpacity(0.15),
+                                  blurRadius: 16,
+                                  spreadRadius: 2,
+                                )
+                              ]
+                            ),
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: AppTheme.primary, width: 1.5),
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                foregroundColor: AppTheme.primary,
+                                backgroundColor: AppTheme.primary.withOpacity(0.05),
+                              ),
+                              onPressed: (cvUrl != null && cvUrl.isNotEmpty) ? () async {
+                                await launchUrl(Uri.parse(cvUrl));
+                              } : () {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CV not available yet.')));
+                              },
+                              child: const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          )
+                        ],
+                      ).animate(delay: 400.ms).fade().slideY(begin: 0.2)
+                    ],
+                  ),
+                ),
+                if (!isDesktop) const SizedBox(height: 64),
+                // Image Content
+                Expanded(
+                  flex: isDesktop ? 5 : 0,
+                  child: Align(
+                    alignment: isDesktop ? Alignment.centerRight : Alignment.center,
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         Container(
+                          width: isDesktop ? 450 : 300,
+                          height: isDesktop ? 550 : 380,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppTheme.primary, AppTheme.primaryContainer],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
                             borderRadius: BorderRadius.circular(12),
+                            color: AppTheme.surfaceContainerWith(context),
                             boxShadow: [
                               BoxShadow(
                                 color: AppTheme.primary.withOpacity(0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                                blurRadius: 40,
+                                spreadRadius: -10,
+                                offset: const Offset(0, 20),
                               )
-                            ]
+                            ],
                           ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            onPressed: () => _showContactDialog(context),
-                            child: const Text('Contact Me', style: TextStyle(color: AppTheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final cvAsync = ref.watch(cvProvider);
-                            return OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppTheme.outlineVariant),
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                              ),
-                              onPressed: cvAsync.isLoading ? null : () async {
-                                final url = cvAsync.value;
-                                if (url != null && url.isNotEmpty) {
-                                  await launchUrl(Uri.parse(url));
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('CV not available yet.')),
-                                  );
-                                }
-                              },
-                              child: cvAsync.isLoading
-                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                                  : const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            );
-                          }
-                        )
-                      ],
-                    ).animate(delay: 400.ms).fade().slideY(begin: 0.2)
-                  ],
-                ),
-              ),
-              if (!isDesktop) const SizedBox(height: 64),
-              // Image Content (Right on Desktop, Top on Mobile physically, but structurally order is reversed in HTML to put image on top on mobile using classes)
-              // Wait, in Stitch it says order-1 for image on mobile. We will just render it below text for simplicity unless specified.
-              Expanded(
-                flex: isDesktop ? 5 : 0,
-                child: Align(
-                  alignment: isDesktop ? Alignment.centerRight : Alignment.center,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: isDesktop ? 450 : 300,
-                        height: isDesktop ? 550 : 380,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: AppTheme.surfaceContainerWith(context),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 40,
-                              offset: const Offset(0, 20),
-                            )
-                          ],
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Consumer(builder: (context, ref, child) {
-                              final devImageAsync = ref.watch(devImageProvider);
-                              final imageUrl = devImageAsync.when(
-                                data: (url) => (url != null && url.isNotEmpty) ? url : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
-                                loading: () => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
-                                error: (_, _) => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop',
-                              );
-                              return ColorFiltered(
+                          clipBehavior: Clip.antiAlias,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              ColorFiltered(
                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
                                 child: Image.network(
-                                  imageUrl,
+                                  displayDevImage,
                                   fit: BoxFit.cover,
                                 ),
-                              );
-                            }),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [AppTheme.surface.withOpacity(0.8), Colors.transparent],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                ),
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -24,
-                        left: -24,
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '1+',
-                                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                  color: AppTheme.onPrimaryContainer,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              Text(
-                                'YEARS EXPERIENCE',
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: AppTheme.onPrimaryContainer.withOpacity(0.8),
-                                  letterSpacing: 2.0,
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [AppTheme.surface.withOpacity(0.9), Colors.transparent],
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                  ),
                                 ),
                               )
                             ],
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fade(),
-              ),
-            ],
+                        Positioned(
+                          bottom: -24,
+                          left: -24,
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '1+',
+                                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                    color: AppTheme.onPrimaryContainer,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                Text(
+                                  'YEARS EXPERIENCE',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: AppTheme.onPrimaryContainer.withOpacity(0.8),
+                                    letterSpacing: 2.0,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutQuint).fade(),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSkillsSection({Key? key}) {
@@ -584,49 +577,56 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildFooter() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
-      decoration: BoxDecoration(
-        color: const Color(0xFF020617), // slate-950
-        border: Border(top: BorderSide(color: Colors.blueGrey.withOpacity(0.2))),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1280),
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            runSpacing: 24,
-            spacing: 24,
-            children: [
-              const Text(
-                '©All right reserved by Md Jahidul Islam.',
-                style: TextStyle(color: Colors.grey, fontSize: 14, letterSpacing: 0.5),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _SocialIcon(
-                    assetPath: 'assets/icons/github_logo.png',
-                    onTap: () => launchUrl(Uri.parse('https://github.com/jahiduljeesan')),
-                  ),
-                  const SizedBox(width: 16),
-                  _SocialIcon(
-                    assetPath: 'assets/icons/linkedin_logo.png',
-                    onTap: () => launchUrl(Uri.parse('https://linkedin.com/in/jahiduljeesan')),
-                  ),
-                  const SizedBox(width: 16),
-                  _SocialIcon(
-                    assetPath: 'assets/icons/email_logo.png',
-                    onTap: () => launchUrl(Uri.parse('mailto:hello@example.com')),
-                  ),
-                ],
-              )
-            ],
+    return Consumer(builder: (context, ref, _) {
+      final settings = ref.watch(generalSettingsProvider).value ?? {};
+      final githubUrl = settings['github_url'] as String? ?? 'https://github.com/jahiduljeesan';
+      final linkedinUrl = settings['linkedin_url'] as String? ?? 'https://linkedin.com/in/jahiduljeesan';
+      final emailUrl = settings['email_url'] as String? ?? 'mailto:hello@example.com';
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
+        decoration: BoxDecoration(
+          color: const Color(0xFF020617), // slate-950
+          border: Border(top: BorderSide(color: Colors.blueGrey.withOpacity(0.2))),
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1280),
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 24,
+              spacing: 24,
+              children: [
+                const Text(
+                  '©All right reserved by Md Jahidul Islam.',
+                  style: TextStyle(color: Colors.grey, fontSize: 14, letterSpacing: 0.5),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _SocialIcon(
+                      assetPath: 'assets/icons/github_logo.png',
+                      onTap: () => launchUrl(Uri.parse(githubUrl)),
+                    ),
+                    const SizedBox(width: 16),
+                    _SocialIcon(
+                      assetPath: 'assets/icons/linkedin_logo.png',
+                      onTap: () => launchUrl(Uri.parse(linkedinUrl)),
+                    ),
+                    const SizedBox(width: 16),
+                    _SocialIcon(
+                      assetPath: 'assets/icons/email_logo.png',
+                      onTap: () => launchUrl(Uri.parse(emailUrl)),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
   void _showContactDialog(BuildContext context) {
     final subjectController = TextEditingController();
@@ -837,14 +837,18 @@ class _ProjectCardState extends State<_ProjectCard> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                   Hero(
+                  Hero(
                     tag: 'project-image-${project.id}',
-                    child: Image.network(
-                      project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
-                          ? project.coverPhoto! 
-                          : (project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
-                      fit: BoxFit.cover,
-                    ),
+                    child: Consumer(builder: (context, ref, _) {
+                      final settings = ref.watch(generalSettingsProvider).value ?? {};
+                      final placeholderUrl = settings['placeholder_image_url'] as String? ?? 'https://picsum.photos/seed/placeholder/800/600';
+                      return Image.network(
+                        project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
+                            ? project.coverPhoto! 
+                            : (project.imageUrls.isNotEmpty ? project.imageUrls.first : placeholderUrl),
+                        fit: BoxFit.cover,
+                      );
+                    }),
                   ),
                   // Gradient Overlay for readability
                   Container(

@@ -158,6 +158,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final project = projects[index];
+                    final settings = ref.watch(generalSettingsProvider).value ?? {};
+                    final placeholderUrl = settings['placeholder_image_url'] as String? ?? 'https://picsum.photos/seed/placeholder/800/600';
                     return Container(
                       decoration: BoxDecoration(
                         color: AppTheme.surfaceContainerLowWith(context),
@@ -172,7 +174,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             image: DecorationImage(
-                              image: NetworkImage(project.imageUrls.isNotEmpty ? project.imageUrls.first : 'https://picsum.photos/seed/placeholder/800/600'),
+                              image: NetworkImage(
+                                project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
+                                    ? project.coverPhoto! 
+                                    : (project.imageUrls.isNotEmpty ? project.imageUrls.first : placeholderUrl)
+                              ),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -415,8 +421,15 @@ class _GeneralSettingsCard extends StatefulWidget {
 }
 
 class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _subtitleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
   final TextEditingController _cvController = TextEditingController();
   final TextEditingController _devImageController = TextEditingController();
+  final TextEditingController _placeholderController = TextEditingController();
+  final TextEditingController _githubController = TextEditingController();
+  final TextEditingController _linkedinController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -427,13 +440,17 @@ class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
 
   Future<void> _loadSettings() async {
     final doc = await FirebaseFirestore.instance.collection('settings').doc('general').get();
-    if (doc.exists) {
-      if (doc.data()!.containsKey('cv_url')) {
-        _cvController.text = doc.data()!['cv_url'];
-      }
-      if (doc.data()!.containsKey('dev_image_url')) {
-        _devImageController.text = doc.data()!['dev_image_url'];
-      }
+    if (doc.exists && doc.data() != null) {
+      final data = doc.data()!;
+      _titleController.text = data['hero_title'] ?? 'Md. Jahidul Islam';
+      _subtitleController.text = data['hero_subtitle'] ?? 'Flutter Developer';
+      _descController.text = data['hero_description'] ?? 'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.';
+      _cvController.text = data['cv_url'] ?? '';
+      _devImageController.text = data['dev_image_url'] ?? '';
+      _placeholderController.text = data['placeholder_image_url'] ?? 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop';
+      _githubController.text = data['github_url'] ?? '';
+      _linkedinController.text = data['linkedin_url'] ?? '';
+      _emailController.text = data['email'] ?? '';
     }
   }
 
@@ -442,8 +459,15 @@ class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
     try {
       await FirebaseFirestore.instance.collection('settings').doc('general').set(
         {
+          'hero_title': _titleController.text.trim(),
+          'hero_subtitle': _subtitleController.text.trim(),
+          'hero_description': _descController.text.trim(),
           'cv_url': _cvController.text.trim(),
           'dev_image_url': _devImageController.text.trim(),
+          'placeholder_image_url': _placeholderController.text.trim(),
+          'github_url': _githubController.text.trim(),
+          'linkedin_url': _linkedinController.text.trim(),
+          'email': _emailController.text.trim(),
         }, 
         SetOptions(merge: true)
       );
@@ -461,6 +485,22 @@ class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
     }
   }
 
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -472,40 +512,21 @@ class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Global Configurations', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-          const SizedBox(height: 8),
-          Text('Manage public links such as your Curriculum Vitae and developer profile picture.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
-          const SizedBox(height: 24),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _cvController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: InputDecoration(
-                    labelText: 'CV URL',
-                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Global Configurations', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 18)),
+                  const SizedBox(height: 8),
+                  Text('Manage text, links, and assets across the entire portfolio website.', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextField(
-                  controller: _devImageController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: InputDecoration(
-                    labelText: 'Developer Image URL',
-                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: _isLoading ? null : _saveSettings,
                 icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
-                label: const Text('Save'),
+                label: const Text('Save Changes'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: AppTheme.onPrimary,
@@ -513,7 +534,48 @@ class _GeneralSettingsCardState extends State<_GeneralSettingsCard> {
                 ),
               )
             ],
-          )
+          ),
+          const SizedBox(height: 32),
+          
+          Text('Hero Section', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('Hero Title (e.g. Md. Jahidul Islam)', _titleController)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('Hero Subtitle (e.g. Flutter Developer)', _subtitleController)),
+            ],
+          ),
+          _buildTextField('Hero Description', _descController, maxLines: 3),
+          
+          const Divider(height: 48),
+          Text('Images & Assets', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('Developer Profile Image URL', _devImageController)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('Placeholder Image URL (for missing projects)', _placeholderController)),
+            ],
+          ),
+          
+          const Divider(height: 48),
+          Text('Links & Social', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('CV / Resume Download URL', _cvController)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('Email Address', _emailController)),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('GitHub URL', _githubController)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('LinkedIn URL', _linkedinController)),
+            ],
+          ),
         ],
       ),
     );

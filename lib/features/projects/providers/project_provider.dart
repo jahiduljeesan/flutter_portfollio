@@ -17,21 +17,12 @@ final projectDetailsProvider = FutureProvider.family<Project, String>((ref, id) 
   return repo.getProjectById(id);
 });
 
-final cvProvider = StreamProvider<String?>((ref) {
+final generalSettingsProvider = StreamProvider<Map<String, dynamic>>((ref) {
   return FirebaseFirestore.instance.collection('settings').doc('general').snapshots().map((doc) {
-    if (doc.exists) {
-      return doc.data()?['cv_url'] as String?;
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!;
     }
-    return null;
-  });
-});
-
-final devImageProvider = StreamProvider<String?>((ref) {
-  return FirebaseFirestore.instance.collection('settings').doc('general').snapshots().map((doc) {
-    if (doc.exists) {
-      return doc.data()?['dev_image_url'] as String?;
-    }
-    return null;
+    return {};
   });
 });
 
