@@ -20,13 +20,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _skillsKey = GlobalKey();
   final GlobalKey _projectsKey = GlobalKey();
-  double _scrollOffset = 0;
+  final ValueNotifier<double> _scrollOffset = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      setState(() => _scrollOffset = _scrollController.offset);
+      _scrollOffset.value = _scrollController.offset;
     });
   }
 
@@ -55,28 +55,44 @@ class _HomePageState extends ConsumerState<HomePage> {
       backgroundColor: const Color(0xFF020617), // Deep space background
       body: Stack(
         children: [
-          // Premium Background Vibe
+          // Premium Cosmic Background Vibe with Parallax
           Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0xFF1E1B4B), // Deep purple glow
-                    Color(0xFF020617), // Slate 950 base
-                  ],
-                  center: Alignment.topLeft,
-                  radius: 1.5,
-                ),
-              ),
+            child: ValueListenableBuilder<double>(
+              valueListenable: _scrollOffset,
+              builder: (context, offset, _) {
+                final parallaxOffset = offset * 0.0005; // very subtle
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: const [
+                        Color(0xFF1E0B3B), // Deep magenta/purple glow
+                        Color(0xFF030A14), // Darker cosmic blue base
+                        Color(0xFF000000), // Deep space
+                      ],
+                      stops: const [0.0, 0.6, 1.0],
+                      center: Alignment(-0.8 + parallaxOffset, -0.8 + parallaxOffset),
+                      radius: 2.0,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          // Animated Grid Overlay
+          // Animated Grid/Noise Overlay
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.05,
-              child: CustomPaint(
-                painter: _GridPainter(),
-              ),
+            child: ValueListenableBuilder<double>(
+              valueListenable: _scrollOffset,
+              builder: (context, offset, _) {
+                return Opacity(
+                  opacity: 0.04,
+                  child: Transform.translate(
+                    offset: Offset(0, -offset * 0.1),
+                    child: CustomPaint(
+                      painter: _GridPainter(),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           // Main Scrollable Content
@@ -412,7 +428,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ScrollReveal(
-                scrollOffset: _scrollOffset,
+                scrollNotifier: _scrollOffset,
                 triggerAt: 600,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,7 +456,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 runSpacing: 24,
                 children: skills.asMap().entries.map((e) =>
                   _ScrollReveal(
-                    scrollOffset: _scrollOffset,
+                    scrollNotifier: _scrollOffset,
                     triggerAt: 700,
                     delay: Duration(milliseconds: e.key * 80),
                     child: _SkillCard(icon: e.value.$1, title: e.value.$2),
@@ -469,7 +485,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ScrollReveal(
-                scrollOffset: _scrollOffset,
+                scrollNotifier: _scrollOffset,
                 triggerAt: 1200,
                 child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -525,7 +541,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     final rightCol = <Widget>[];
                     for (int i = 0; i < projects.length; i++) {
                       final card = _ScrollReveal(
-                        scrollOffset: _scrollOffset,
+                        scrollNotifier: _scrollOffset,
                         triggerAt: 1350,
                         delay: Duration(milliseconds: i * 100),
                         child: Padding(
@@ -548,7 +564,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     return Column(
                       children: projects.asMap().entries.map((e) =>
                         _ScrollReveal(
-                          scrollOffset: _scrollOffset,
+                          scrollNotifier: _scrollOffset,
                           triggerAt: 600,
                           delay: Duration(milliseconds: e.key * 100),
                           child: Padding(padding: const EdgeInsets.only(bottom: 48), child: _ProjectCard(project: e.value)),
@@ -732,8 +748,8 @@ class _SkillCardState extends State<_SkillCard> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutQuint,
         width: 180,
         padding: const EdgeInsets.all(32),
         transform: _isHovered ? (Matrix4.identity()..translate(0, -8, 0)) : Matrix4.identity(),
@@ -792,8 +808,8 @@ class _ProjectCardState extends State<_ProjectCard> {
       onExit: (_) => setState(() => _isHovered = false),
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutQuint,
         width: 500,
         transform: _isHovered ? (Matrix4.identity()..translate(0, -12, 0)) : Matrix4.identity(),
         decoration: BoxDecoration(
@@ -1005,55 +1021,39 @@ class _SocialIconState extends State<_SocialIcon> {
 }
 
 /// A widget that animates into view when the scroll offset passes [triggerAt].
-class _ScrollReveal extends StatefulWidget {
-  final double scrollOffset;
+class _ScrollReveal extends StatelessWidget {
+  final ValueNotifier<double> scrollNotifier;
   final double triggerAt;
   final Widget child;
   final Duration delay;
 
   const _ScrollReveal({
-    required this.scrollOffset,
+    required this.scrollNotifier,
     required this.triggerAt,
     required this.child,
     this.delay = Duration.zero,
   });
 
   @override
-  State<_ScrollReveal> createState() => _ScrollRevealState();
-}
-
-class _ScrollRevealState extends State<_ScrollReveal> {
-  bool _hasRevealed = false;
-
-  @override
-  void didUpdateWidget(_ScrollReveal oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_hasRevealed && widget.scrollOffset >= widget.triggerAt) {
-      if (widget.delay == Duration.zero) {
-        setState(() => _hasRevealed = true);
-      } else {
-        Future.delayed(widget.delay, () {
-          if (mounted) setState(() => _hasRevealed = true);
-        });
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!_hasRevealed && widget.scrollOffset >= widget.triggerAt && widget.delay == Duration.zero) {
-      _hasRevealed = true;
-    }
-    return AnimatedOpacity(
-      opacity: _hasRevealed ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOut,
-      child: AnimatedSlide(
-        offset: _hasRevealed ? Offset.zero : const Offset(0, 0.08),
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
-      ),
+    return ValueListenableBuilder<double>(
+      valueListenable: scrollNotifier,
+      builder: (context, scrollOffset, _) {
+        final bool hasRevealed = scrollOffset >= triggerAt;
+        
+        return AnimatedOpacity(
+          opacity: hasRevealed ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          child: AnimatedSlide(
+            offset: hasRevealed ? Offset.zero : const Offset(0, 0.08),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            child: child,
+          ),
+        );
+      },
     );
   }
 }
+

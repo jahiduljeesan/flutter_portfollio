@@ -11,10 +11,10 @@ class AppTheme {
   static const tertiary = Color(0xFFC1C1FF);
   
   // Surface Layers (Depth)
-  static const surface = Color(0xFF11131C);
-  static const surfaceContainerLowest = Color(0xFF0C0E17);
-  static const surfaceContainerLow = Color(0xFF191B24);
-  static const surfaceContainer = Color(0xFF1D1F29);
+  static const surface = Color(0xFF05050A);
+  static const surfaceContainerLowest = Color(0xFF020205);
+  static const surfaceContainerLow = Color(0xFF0A0B13);
+  static const surfaceContainer = Color(0xFF0F111A);
   static const surfaceContainerHighest = Color(0xFF32343E);
   static const surfaceBright = Color(0xFF373943);
   
@@ -54,23 +54,23 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: surface,
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.manrope(
+        displayLarge: GoogleFonts.playfairDisplay(
           fontSize: 56,
           fontWeight: FontWeight.w700,
           color: onSurface,
           height: 1.2,
         ),
-        displayMedium: GoogleFonts.manrope(
+        displayMedium: GoogleFonts.playfairDisplay(
           fontSize: 48,
           fontWeight: FontWeight.w700,
           color: onSurface,
         ),
-        headlineLarge: GoogleFonts.manrope(
+        headlineLarge: GoogleFonts.playfairDisplay(
           fontSize: 40,
           fontWeight: FontWeight.w600,
           color: onSurface,
         ),
-        headlineSmall: GoogleFonts.manrope(
+        headlineSmall: GoogleFonts.playfairDisplay(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: secondary,
