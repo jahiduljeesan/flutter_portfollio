@@ -3,40 +3,40 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Colors
-  static const primary = Color(0xFF4CD6FF);
-  static const primaryContainer = Color(0xFF007792);
-  static const onPrimary = Color(0xFF003543);
-  static const onPrimaryContainer = Color(0xFFDCF4FF);
+  static const primary = Color(0xFF00F3FF); // Neon Cyan
+  static const primaryContainer = Color(0xFF003C46); // Deep Tech Teal
+  static const onPrimary = Color(0xFF020408); // Dark Void
+  static const onPrimaryContainer = Color(0xFFCCFDFF); // Light Cyan highlight
   
-  static const tertiary = Color(0xFFC1C1FF);
+  static const tertiary = Color(0xFFFF007F); // Hot Cyber Pink
   
-  // Surface Layers (Depth)
-  static const surface = Color(0xFF05050A);
-  static const surfaceContainerLowest = Color(0xFF020205);
-  static const surfaceContainerLow = Color(0xFF0A0B13);
-  static const surfaceContainer = Color(0xFF0F111A);
-  static const surfaceContainerHighest = Color(0xFF32343E);
-  static const surfaceBright = Color(0xFF373943);
+  // Surface Layers (Void Dark Space Theme)
+  static const surface = Color(0xFF020408); 
+  static const surfaceContainerLowest = Color(0xFF000102); 
+  static const surfaceContainerLow = Color(0xFF050811); 
+  static const surfaceContainer = Color(0xFF0A0F1E); 
+  static const surfaceContainerHighest = Color(0xFF141929); 
+  static const surfaceBright = Color(0xFF22283C); 
   
   // Text Colors
-  static const onSurface = Color(0xFFE1E1EF);
-  static const secondary = Color(0xFFC6C5D4);
+  static const onSurface = Color(0xFFF1F5F9); // Slate 100
+  static const secondary = Color(0xFF94A3B8); // Slate 400
   
   // Accents
-  static const outlineVariant = Color(0xFF434656);
+  static const outlineVariant = Color(0xFF1E293B); // Slate 800
 
   // Dynamic Theme Helpers
   static Color surfaceContainerWith(BuildContext context) => 
-      Theme.of(context).brightness == Brightness.dark ? surfaceContainer : const Color(0xFFF1F5F9); // Slate 100
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainer : const Color(0xFFF8FAFC);
       
   static Color surfaceContainerLowWith(BuildContext context) => 
-      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLow : const Color(0xFFF8FAFC); // Slate 50
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLow : const Color(0xFFFFFFFF);
       
   static Color surfaceContainerHighestWith(BuildContext context) => 
-      Theme.of(context).brightness == Brightness.dark ? surfaceContainerHighest : const Color(0xFFE2E8F0); // Slate 200
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerHighest : const Color(0xFFE2E8F0);
       
   static Color surfaceContainerLowestWith(BuildContext context) => 
-      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLowest : const Color(0xFFFFFFFF); // White
+      Theme.of(context).brightness == Brightness.dark ? surfaceContainerLowest : const Color(0xFFF1F5F9);
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -54,28 +54,30 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: surface,
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.playfairDisplay(
+        displayLarge: GoogleFonts.outfit(
           fontSize: 56,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           color: onSurface,
-          height: 1.2,
+          height: 1.1,
+          letterSpacing: -1.0,
         ),
-        displayMedium: GoogleFonts.playfairDisplay(
+        displayMedium: GoogleFonts.outfit(
           fontSize: 48,
+          fontWeight: FontWeight.w800,
+          color: onSurface,
+          letterSpacing: -0.5,
+        ),
+        headlineLarge: GoogleFonts.outfit(
+          fontSize: 40,
           fontWeight: FontWeight.w700,
           color: onSurface,
         ),
-        headlineLarge: GoogleFonts.playfairDisplay(
-          fontSize: 40,
-          fontWeight: FontWeight.w600,
-          color: onSurface,
-        ),
-        headlineSmall: GoogleFonts.playfairDisplay(
+        headlineSmall: GoogleFonts.outfit(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: secondary,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: GoogleFonts.outfit(
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: onSurface,
@@ -84,24 +86,24 @@ class AppTheme {
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: onSurface,
-          height: 1.5,
+          height: 1.6,
         ),
         bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: onSurface,
-          height: 1.5,
+          height: 1.6,
         ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: GoogleFonts.shareTechMono(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.8,
+          letterSpacing: 1.2,
           color: secondary,
         ),
-        labelSmall: GoogleFonts.inter(
+        labelSmall: GoogleFonts.shareTechMono(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.8,
+          letterSpacing: 1.5,
           color: secondary,
         ),
       ),

@@ -51,44 +51,42 @@ class _HomePageState extends ConsumerState<HomePage> {
       backgroundColor: const Color(0xFF020617), // Deep space background
       body: Stack(
         children: [
-          // Premium Cosmic Background Vibe with Parallax
+          // Premium Breathing Cosmic Void Background (Decoupled from scroll updates for max speed)
           Positioned.fill(
-            child: ValueListenableBuilder<double>(
-              valueListenable: _scrollOffset,
-              builder: (context, offset, _) {
-                final parallaxOffset = offset * 0.0005; // very subtle
-                return Container(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: const [
-                        Color(0xFF1E0B3B), // Deep magenta/purple glow
-                        Color(0xFF030A14), // Darker cosmic blue base
-                        Color(0xFF000000), // Deep space
-                      ],
-                      stops: const [0.0, 0.6, 1.0],
-                      center: Alignment(-0.8 + parallaxOffset, -0.8 + parallaxOffset),
-                      radius: 2.0,
-                    ),
-                  ),
-                );
-              },
-            ),
+            child: Container()
+                .animate(
+                  onPlay: (controller) => controller.repeat(reverse: true),
+                )
+                .custom(
+                  duration: 8.seconds,
+                  builder: (context, value, child) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          colors: [
+                            Color.lerp(
+                              const Color(0xFF12042E),
+                              const Color(0xFF041830),
+                              value,
+                            )!, // Pulse violet and navy
+                            const Color(0xFF020408), // Deep space void
+                          ],
+                          center: Alignment(
+                            -0.7 + (value * 0.15),
+                            -0.7 + (value * 0.15),
+                          ),
+                          radius: 1.3 + (value * 0.4),
+                        ),
+                      ),
+                    );
+                  },
+                ),
           ),
-          // Animated Grid/Noise Overlay
+          // Optimized High-Tech Technical Grid Overlay
           Positioned.fill(
-            child: ValueListenableBuilder<double>(
-              valueListenable: _scrollOffset,
-              builder: (context, offset, _) {
-                return Opacity(
-                  opacity: 0.04,
-                  child: Transform.translate(
-                    offset: Offset(0, -offset * 0.1),
-                    child: CustomPaint(
-                      painter: _GridPainter(),
-                    ),
-                  ),
-                );
-              },
+            child: Opacity(
+              opacity: 0.025,
+              child: CustomPaint(painter: _GridPainter()),
             ),
           ),
           // Main Scrollable Content
@@ -105,7 +103,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ],
             ),
           ),
-          
+
           // Fixed Top NavBar
           Positioned(
             top: 0,
@@ -117,7 +115,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: Container(
                   height: 80,
                   padding: const EdgeInsets.symmetric(horizontal: 32),
-                  color: const Color(0xFF0F172A).withOpacity(0.6), // slate-900/60
+                  color: const Color(
+                    0xFF0F172A,
+                  ).withOpacity(0.6), // slate-900/60
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -129,7 +129,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           letterSpacing: -0.5,
                         ),
                       ),
-                      
+
                       // Desktop Nav Links
                       if (MediaQuery.of(context).size.width > 768)
                         Row(
@@ -151,18 +151,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                           ],
                         ),
-                      
+
                       // Action Icons
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.admin_panel_settings, color: AppTheme.primary),
+                            icon: const Icon(
+                              Icons.admin_panel_settings,
+                              color: AppTheme.primary,
+                            ),
                             onPressed: () {
                               context.push('/login');
                             },
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -176,219 +179,296 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildHeroSection({Key? key}) {
     final isDesktop = MediaQuery.of(context).size.width > 1024;
-    return Consumer(builder: (context, ref, _) {
-      final settings = ref.watch(generalSettingsProvider).value ?? {};
-      final title = settings['hero_title'] as String? ?? 'Md. Jahidul Islam';
-      final subtitle = settings['hero_subtitle'] as String? ?? 'Flutter Developer';
-      final desc = settings['hero_description'] as String? ?? 'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.';
-      final devImage = settings['dev_image_url'] as String?;
-      final displayDevImage = (devImage != null && devImage.isNotEmpty) ? devImage : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg';
-      final cvUrl = settings['cv_url'] as String?;
+    return Consumer(
+      builder: (context, ref, _) {
+        final settings = ref.watch(generalSettingsProvider).value ?? {};
+        final title = settings['hero_title'] as String? ?? 'Md. Jahidul Islam';
+        final subtitle =
+            settings['hero_subtitle'] as String? ?? 'Flutter Developer';
+        final desc =
+            settings['hero_description'] as String? ??
+            'Crafting high-impact, pixel-perfect cross-platform experiences with a focus on scalable architecture, fluid animations, and native-level performance.';
+        final devImage = settings['dev_image_url'] as String?;
+        final displayDevImage = (devImage != null && devImage.isNotEmpty)
+            ? devImage
+            : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg';
+        final cvUrl = settings['cv_url'] as String?;
 
-      return Container(
-        key: key,
-        constraints: const BoxConstraints(minHeight: 800),
-        padding: EdgeInsets.symmetric(horizontal: isDesktop ? 64 : 32, vertical: 64),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1280),
-            child: Flex(
-              direction: isDesktop ? Axis.horizontal : Axis.vertical,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Text Content
-                Expanded(
-                  flex: isDesktop ? 6 : 0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'ARCHITECTURE & PERFORMANCE',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                      ).animate().fade().slideY(begin: 0.2),
-                      const SizedBox(height: 16),
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 56),
-                      ).animate().fade().slideY(begin: 0.2),
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [AppTheme.primary, AppTheme.primaryContainer],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          subtitle,
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            color: Colors.white,
-                            fontSize: 56,
-                          ),
-                        ),
-                      ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
-                      const SizedBox(height: 24),
-                      Text(
-                        desc,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppTheme.secondary,
-                          fontSize: 20,
-                          height: 1.6,
-                        ),
-                      ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
-                      const SizedBox(height: 40),
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [AppTheme.primary, AppTheme.primaryContainer],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.primary.withOpacity(0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                )
-                              ]
-                            ),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () => _showContactDialog(context),
-                              child: const Text('Contact Me', style: TextStyle(color: AppTheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          const SizedBox(width: 24),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.primary.withOpacity(0.15),
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
-                                )
-                              ]
-                            ),
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppTheme.primary, width: 1.5),
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                foregroundColor: AppTheme.primary,
-                                backgroundColor: AppTheme.primary.withOpacity(0.05),
-                              ),
-                              onPressed: (cvUrl != null && cvUrl.isNotEmpty) ? () async {
-                                await launchUrl(Uri.parse(cvUrl));
-                              } : () {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CV not available yet.')));
-                              },
-                              child: const Text('Download CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            ),
-                          )
-                        ],
-                      ).animate(delay: 400.ms).fade().slideY(begin: 0.2)
-                    ],
-                  ),
-                ),
-                if (!isDesktop) const SizedBox(height: 64),
-                // Image Content
-                Expanded(
-                  flex: isDesktop ? 5 : 0,
-                  child: Align(
-                    alignment: isDesktop ? Alignment.centerRight : Alignment.center,
-                    child: Stack(
-                      clipBehavior: Clip.none,
+        return Container(
+          key: key,
+          constraints: const BoxConstraints(minHeight: 800),
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 64 : 32,
+            vertical: 64,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1280),
+              child: Flex(
+                direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Text Content
+                  Expanded(
+                    flex: isDesktop ? 6 : 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: isDesktop ? 450 : 300,
-                          height: isDesktop ? 550 : 380,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppTheme.surfaceContainerWith(context),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.primary.withOpacity(0.2),
-                                blurRadius: 40,
-                                spreadRadius: -10,
-                                offset: const Offset(0, 20),
-                              )
-                            ],
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              ColorFiltered(
-                                colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                child: Image.network(
-                                  displayDevImage,
-                                  fit: BoxFit.cover,
+                        Text(
+                          'ARCHITECTURE & PERFORMANCE',
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: AppTheme.primary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2.0,
+                              ),
+                        ).animate().fade().slideY(begin: 0.2),
+                        const SizedBox(height: 16),
+                        Text(
+                          title,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.displayLarge?.copyWith(fontSize: 56),
+                        ).animate().fade().slideY(begin: 0.2),
+                        const SizedBox(height: 8),
+                        const _TypewriterSubtitle(),
+                        const SizedBox(height: 24),
+                        Text(
+                          desc,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: AppTheme.secondary,
+                                fontSize: 18,
+                                height: 1.6,
+                              ),
+                        ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
+                        const SizedBox(height: 32),
+                        const _HudConsole()
+                            .animate(delay: 300.ms)
+                            .fade()
+                            .slideY(begin: 0.15),
+                        const SizedBox(height: 40),
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppTheme.primary,
+                                    AppTheme.primaryContainer,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.primary.withOpacity(0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 20,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () => _showContactDialog(context),
+                                child: const Text(
+                                  'Contact Me',
+                                  style: TextStyle(
+                                    color: AppTheme.onPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [AppTheme.surface.withOpacity(0.9), Colors.transparent],
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
+                            ),
+                            const SizedBox(width: 24),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.primary.withOpacity(0.15),
+                                    blurRadius: 16,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: AppTheme.primary,
+                                    width: 1.5,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 20,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  foregroundColor: AppTheme.primary,
+                                  backgroundColor: AppTheme.primary.withOpacity(
+                                    0.05,
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -24,
-                          left: -24,
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '1+',
-                                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                    color: AppTheme.onPrimaryContainer,
-                                    fontWeight: FontWeight.w800,
+                                onPressed: (cvUrl != null && cvUrl.isNotEmpty)
+                                    ? () async {
+                                        await launchUrl(Uri.parse(cvUrl));
+                                      }
+                                    : () {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'CV not available yet.',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                child: const Text(
+                                  'Download CV',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  'YEARS EXPERIENCE',
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: AppTheme.onPrimaryContainer.withOpacity(0.8),
-                                    letterSpacing: 2.0,
-                                  ),
-                                )
-                              ],
+                              ),
                             ),
-                          ),
-                        )
+                          ],
+                        ).animate(delay: 400.ms).fade().slideY(begin: 0.2),
                       ],
                     ),
-                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutQuint).fade(),
-                ),
-              ],
+                  ),
+                  if (!isDesktop) const SizedBox(height: 64),
+                  // Image Content
+                  Expanded(
+                    flex: isDesktop ? 5 : 0,
+                    child:
+                        Align(
+                              alignment: isDesktop
+                                  ? Alignment.centerRight
+                                  : Alignment.center,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: isDesktop ? 450 : 300,
+                                    height: isDesktop ? 550 : 380,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: AppTheme.surfaceContainerWith(
+                                        context,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppTheme.primary.withOpacity(
+                                            0.2,
+                                          ),
+                                          blurRadius: 40,
+                                          spreadRadius: -10,
+                                          offset: const Offset(0, 20),
+                                        ),
+                                      ],
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/avatar.png',
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Image.network(
+                                                  displayDevImage,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppTheme.surface.withOpacity(
+                                                  0.8,
+                                                ),
+                                                Colors.transparent,
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: -24,
+                                    left: -24,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryContainer,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '1+',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium
+                                                ?.copyWith(
+                                                  color: AppTheme
+                                                      .onPrimaryContainer,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                          ),
+                                          Text(
+                                            'YEARS EXPERIENCE',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelSmall
+                                                ?.copyWith(
+                                                  color: AppTheme
+                                                      .onPrimaryContainer
+                                                      .withOpacity(0.8),
+                                                  letterSpacing: 2.0,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                            .animate()
+                            .scale(duration: 600.ms, curve: Curves.easeOutQuint)
+                            .fade(),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildSkillsSection({Key? key}) {
@@ -428,13 +508,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                   children: [
                     Text(
                       'The Toolkit',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w800, color: Colors.white,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      width: 80, height: 4,
+                      width: 80,
+                      height: 4,
                       decoration: BoxDecoration(
                         color: AppTheme.primary,
                         borderRadius: BorderRadius.circular(2),
@@ -447,14 +530,18 @@ class _HomePageState extends ConsumerState<HomePage> {
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
-                children: skills.asMap().entries.map((e) =>
-                  _ScrollReveal(
-                    scrollNotifier: _scrollOffset,
-                    triggerAt: 700,
-                    delay: Duration(milliseconds: e.key * 80),
-                    child: _SkillCard(icon: e.value.$1, title: e.value.$2),
-                  )
-                ).toList(),
+                children: skills
+                    .asMap()
+                    .entries
+                    .map(
+                      (e) => _ScrollReveal(
+                        scrollNotifier: _scrollOffset,
+                        triggerAt: 700,
+                        delay: Duration(milliseconds: e.key * 80),
+                        child: _SkillCard(icon: e.value.$1, title: e.value.$2),
+                      ),
+                    )
+                    .toList(),
               ),
             ],
           ),
@@ -481,36 +568,53 @@ class _HomePageState extends ConsumerState<HomePage> {
                 scrollNotifier: _scrollOffset,
                 triggerAt: 1200,
                 child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Featured Projects', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
-                        const SizedBox(height: 16),
-                        Text(
-                          'A selection of curated mobile applications focused on fintech, health, and enterprise solutions.',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.secondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (isDesktop)
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
-                      child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('View All', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward),
+                          Text(
+                            'Featured Projects',
+                            style: Theme.of(context).textTheme.displayMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'A selection of curated mobile applications focused on fintech, health, and enterprise solutions.',
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: AppTheme.secondary),
+                          ),
                         ],
                       ),
-                    )
-                ],
-              )),
+                    ),
+                    if (isDesktop)
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.primary,
+                        ),
+                        child: const Row(
+                          children: [
+                            Text(
+                              'View All',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 64),
               // Scroll reveal wrapper handled per-card below
               projectsAsync.when(
@@ -521,9 +625,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: Center(
                         child: Column(
                           children: [
-                            const Icon(Icons.folder_off_outlined, size: 48, color: Colors.grey),
+                            const Icon(
+                              Icons.folder_off_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(height: 16),
-                            Text('No projects available at the moment', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey)),
+                            Text(
+                              'No projects available at the moment',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Colors.grey),
+                            ),
                           ],
                         ),
                       ),
@@ -553,24 +665,41 @@ class _HomePageState extends ConsumerState<HomePage> {
                       children: [
                         Expanded(child: Column(children: leftCol)),
                         const SizedBox(width: 48),
-                        Expanded(child: Padding(padding: const EdgeInsets.only(top: 120), child: Column(children: rightCol))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 120),
+                            child: Column(children: rightCol),
+                          ),
+                        ),
                       ],
                     );
                   } else {
                     return Column(
-                      children: projects.asMap().entries.map((e) =>
-                        _ScrollReveal(
-                          scrollNotifier: _scrollOffset,
-                          triggerAt: 600,
-                          delay: Duration(milliseconds: e.key * 100),
-                          child: Padding(padding: const EdgeInsets.only(bottom: 48), child: _ProjectCard(project: e.value)),
-                        )
-                      ).toList(),
+                      children: projects
+                          .asMap()
+                          .entries
+                          .map(
+                            (e) => _ScrollReveal(
+                              scrollNotifier: _scrollOffset,
+                              triggerAt: 600,
+                              delay: Duration(milliseconds: e.key * 100),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 48),
+                                child: _ProjectCard(project: e.value),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     );
                   }
                 },
-                loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-                error: (err, stack) => Text('Error loading projects: $err', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary),
+                ),
+                error: (err, stack) => Text(
+                  'Error loading projects: $err',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ),
             ],
           ),
@@ -580,66 +709,86 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildFooter() {
-    return Consumer(builder: (context, ref, _) {
-      final settings = ref.watch(generalSettingsProvider).value ?? {};
-      final githubUrl = settings['github_url'] as String? ?? 'https://github.com/jahiduljeesan';
-      final linkedinUrl = settings['linkedin_url'] as String? ?? 'https://linkedin.com/in/jahiduljeesan';
-      final emailUrl = settings['email_url'] as String? ?? 'mailto:hello@example.com';
+    return Consumer(
+      builder: (context, ref, _) {
+        final settings = ref.watch(generalSettingsProvider).value ?? {};
+        final githubUrl =
+            settings['github_url'] as String? ??
+            'https://github.com/jahiduljeesan';
+        final linkedinUrl =
+            settings['linkedin_url'] as String? ??
+            'https://linkedin.com/in/jahiduljeesan';
+        final emailUrl =
+            settings['email_url'] as String? ?? 'mailto:hello@example.com';
 
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
-        decoration: BoxDecoration(
-          color: const Color(0xFF020617), // slate-950
-          border: Border(top: BorderSide(color: Colors.blueGrey.withOpacity(0.2))),
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1280),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              runSpacing: 24,
-              spacing: 24,
-              children: [
-                const Text(
-                  '©All right reserved by Md Jahidul Islam.',
-                  style: TextStyle(color: Colors.grey, fontSize: 14, letterSpacing: 0.5),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _SocialIcon(
-                      assetPath: 'assets/icons/github_logo.png',
-                      onTap: () => launchUrl(Uri.parse(githubUrl)),
-                    ),
-                    const SizedBox(width: 16),
-                    _SocialIcon(
-                      assetPath: 'assets/icons/linkedin_logo.png',
-                      onTap: () => launchUrl(Uri.parse(linkedinUrl)),
-                    ),
-                    const SizedBox(width: 16),
-                    _SocialIcon(
-                      assetPath: 'assets/icons/email_logo.png',
-                      onTap: () => launchUrl(Uri.parse(emailUrl)),
-                    ),
-                  ],
-                )
-              ],
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
+          decoration: BoxDecoration(
+            color: const Color(0xFF020617), // slate-950
+            border: Border(
+              top: BorderSide(color: Colors.blueGrey.withOpacity(0.2)),
             ),
           ),
-        ),
-      );
-    });
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1280),
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                runSpacing: 24,
+                spacing: 24,
+                children: [
+                  const Text(
+                    '©All right reserved by Md Jahidul Islam.',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _SocialIcon(
+                        assetPath: 'assets/icons/github_logo.png',
+                        onTap: () => launchUrl(Uri.parse(githubUrl)),
+                      ),
+                      const SizedBox(width: 16),
+                      _SocialIcon(
+                        assetPath: 'assets/icons/linkedin_logo.png',
+                        onTap: () => launchUrl(Uri.parse(linkedinUrl)),
+                      ),
+                      const SizedBox(width: 16),
+                      _SocialIcon(
+                        assetPath: 'assets/icons/email_logo.png',
+                        onTap: () => launchUrl(Uri.parse(emailUrl)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
+
   void _showContactDialog(BuildContext context) {
     final subjectController = TextEditingController();
     final messageController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceContainerHighestWith(context),
-        title: Text('Start a Conversation', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Start a Conversation',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: SizedBox(
           width: 500,
           child: Column(
@@ -647,12 +796,24 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               TextField(
                 controller: subjectController,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Subject',
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                  enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.outlineVariant), borderRadius: BorderRadius.circular(8)),
-                  focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.primary), borderRadius: BorderRadius.circular(8)),
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: AppTheme.outlineVariant,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppTheme.primary),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   filled: true,
                   fillColor: AppTheme.surfaceContainerLowestWith(context),
                 ),
@@ -661,13 +822,25 @@ class _HomePageState extends ConsumerState<HomePage> {
               TextField(
                 controller: messageController,
                 maxLines: 5,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Your Message',
                   alignLabelWithHint: true,
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                  enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.outlineVariant), borderRadius: BorderRadius.circular(8)),
-                  focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppTheme.primary), borderRadius: BorderRadius.circular(8)),
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: AppTheme.outlineVariant,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppTheme.primary),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   filled: true,
                   fillColor: AppTheme.surfaceContainerLowestWith(context),
                 ),
@@ -678,29 +851,36 @@ class _HomePageState extends ConsumerState<HomePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () async {
               final subject = Uri.encodeComponent(subjectController.text);
               final body = Uri.encodeComponent(messageController.text);
-              final Uri emailLaunchUri = Uri.parse('mailto:hello@example.com?subject=$subject&body=$body');
+              final Uri emailLaunchUri = Uri.parse(
+                'mailto:hello@example.com?subject=$subject&body=$body',
+              );
               await launchUrl(emailLaunchUri);
               if (context.mounted) Navigator.pop(context);
             },
             icon: const Icon(Icons.send_rounded, size: 18),
-            label: const Text('Send Message', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text(
+              'Send Message',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary, 
+              backgroundColor: AppTheme.primary,
               foregroundColor: AppTheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             ),
           ),
         ],
-      )
+      ),
     );
   }
-
 }
 
 class _NavBarTextButton extends StatelessWidget {
@@ -708,7 +888,11 @@ class _NavBarTextButton extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const _NavBarTextButton({required this.text, this.isActive = false, required this.onTap});
+  const _NavBarTextButton({
+    required this.text,
+    this.isActive = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -717,7 +901,11 @@ class _NavBarTextButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          border: isActive ? const Border(bottom: BorderSide(color: AppTheme.primary, width: 2)) : null,
+          border: isActive
+              ? const Border(
+                  bottom: BorderSide(color: AppTheme.primary, width: 2),
+                )
+              : null,
         ),
         child: Text(
           text,
@@ -755,12 +943,18 @@ class _SkillCardState extends State<_SkillCard> {
         curve: Curves.easeOutQuint,
         width: 180,
         padding: const EdgeInsets.all(32),
-        transform: _isHovered ? (Matrix4.identity()..translate(0, -8, 0)) : Matrix4.identity(),
+        transform: _isHovered
+            ? (Matrix4.identity()..translate(0, -8, 0))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: _isHovered ? AppTheme.primary.withOpacity(0.05) : Colors.white.withOpacity(0.02),
+          color: _isHovered
+              ? AppTheme.primary.withOpacity(0.05)
+              : Colors.white.withOpacity(0.02),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: _isHovered ? AppTheme.primary.withOpacity(0.5) : Colors.white.withOpacity(0.05),
+            color: _isHovered
+                ? AppTheme.primary.withOpacity(0.5)
+                : Colors.white.withOpacity(0.05),
             width: 1.5,
           ),
           boxShadow: [
@@ -769,7 +963,7 @@ class _SkillCardState extends State<_SkillCard> {
                 color: AppTheme.primary.withOpacity(0.2),
                 blurRadius: 30,
                 spreadRadius: -5,
-              )
+              ),
           ],
         ),
         child: Column(
@@ -778,13 +972,26 @@ class _SkillCardState extends State<_SkillCard> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: _isHovered ? AppTheme.primary.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+                color: _isHovered
+                    ? AppTheme.primary.withOpacity(0.2)
+                    : Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(widget.icon, color: _isHovered ? AppTheme.primary : Colors.white70, size: 28),
+              child: Icon(
+                widget.icon,
+                color: _isHovered ? AppTheme.primary : Colors.white70,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 20),
-            Text(widget.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              widget.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
       ),
@@ -811,23 +1018,33 @@ class _ProjectCardState extends State<_ProjectCard> {
       onExit: (_) => setState(() => _isHovered = false),
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOutQuint,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
         width: 500,
-        transform: _isHovered ? (Matrix4.identity()..translate(0, -12, 0)) : Matrix4.identity(),
+        transform: _isHovered
+            ? (Matrix4.identity()
+                ..setEntry(3, 2, 0.001) // perspective
+                ..rotateX(-0.03) // slight tilt forward
+                ..rotateY(0.03) // slight tilt side
+                ..translate(-4, -12, 0))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.02),
+          color: AppTheme.surfaceContainer.withOpacity(0.4),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: _isHovered ? AppTheme.primary.withOpacity(0.3) : Colors.white.withOpacity(0.05),
+            color: _isHovered
+                ? AppTheme.primary.withOpacity(0.5)
+                : Colors.white.withOpacity(0.06),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(_isHovered ? 0.6 : 0.3),
+              color: _isHovered
+                  ? AppTheme.primary.withOpacity(0.15)
+                  : Colors.black.withOpacity(0.3),
               blurRadius: _isHovered ? 40 : 20,
               offset: Offset(0, _isHovered ? 20 : 10),
-            )
+            ),
           ],
         ),
         clipBehavior: Clip.antiAlias,
@@ -841,18 +1058,32 @@ class _ProjectCardState extends State<_ProjectCard> {
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: 'project-image-${project.id}',
-                    child: Consumer(builder: (context, ref, _) {
-                      final settings = ref.watch(generalSettingsProvider).value ?? {};
-                      final placeholderUrl = settings['placeholder_image_url'] as String? ?? 'https://picsum.photos/seed/placeholder/800/600';
-                      return Image.network(
-                        project.coverPhoto != null && project.coverPhoto!.isNotEmpty 
-                            ? project.coverPhoto! 
-                            : (project.imageUrls.isNotEmpty ? project.imageUrls.first : placeholderUrl),
-                        fit: BoxFit.cover,
-                      );
-                    }),
-                  ),
+                        tag: 'project-image-${project.id}',
+                        child: Consumer(
+                          builder: (context, ref, _) {
+                            final settings =
+                                ref.watch(generalSettingsProvider).value ?? {};
+                            final placeholderUrl =
+                                settings['placeholder_image_url'] as String? ??
+                                'https://picsum.photos/seed/placeholder/800/600';
+                            return Image.network(
+                              project.coverPhoto != null &&
+                                      project.coverPhoto!.isNotEmpty
+                                  ? project.coverPhoto!
+                                  : (project.imageUrls.isNotEmpty
+                                        ? project.imageUrls.first
+                                        : placeholderUrl),
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                      )
+                      .animate(target: _isHovered ? 1.0 : 0.0)
+                      .shimmer(
+                        duration: 1000.ms,
+                        color: Colors.white.withOpacity(0.2),
+                        angle: 45,
+                      ),
                   // Gradient Overlay for readability
                   Container(
                     decoration: BoxDecoration(
@@ -875,14 +1106,18 @@ class _ProjectCardState extends State<_ProjectCard> {
                       children: [
                         _buildTag('NATIVE', Colors.white.withOpacity(0.2)),
                         const SizedBox(width: 8),
-                        _buildTag('FLUTTER', AppTheme.primary.withOpacity(0.8), isPrimary: true),
+                        _buildTag(
+                          'FLUTTER',
+                          AppTheme.primary.withOpacity(0.8),
+                          isPrimary: true,
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            
+
             // Details Container
             Padding(
               padding: const EdgeInsets.all(32),
@@ -923,12 +1158,23 @@ class _ProjectCardState extends State<_ProjectCard> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text('View Project', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text(
+                              'View Project',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             const SizedBox(width: 8),
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              transform: _isHovered ? (Matrix4.identity()..translate(4, 0, 0)) : Matrix4.identity(),
-                              child: const Icon(Icons.arrow_forward_rounded, size: 20),
+                              transform: _isHovered
+                                  ? (Matrix4.identity()..translate(4, 0, 0))
+                                  : Matrix4.identity(),
+                              child: const Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 20,
+                              ),
                             ),
                           ],
                         ),
@@ -936,13 +1182,15 @@ class _ProjectCardState extends State<_ProjectCard> {
                       // Optional: View Count or Date
                       Text(
                         '${project.viewCount} views',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.secondary.withOpacity(0.5)),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppTheme.secondary.withOpacity(0.5),
+                        ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -975,7 +1223,9 @@ class _ProjectCardState extends State<_ProjectCard> {
 class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white..strokeWidth = 1;
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 1;
     for (double i = 0; i < size.width; i += 40) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
     }
@@ -986,6 +1236,323 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _TypewriterSubtitle extends StatefulWidget {
+  const _TypewriterSubtitle();
+
+  @override
+  State<_TypewriterSubtitle> createState() => _TypewriterSubtitleState();
+}
+
+class _TypewriterSubtitleState extends State<_TypewriterSubtitle> {
+  final List<String> _specialties = [
+    'Flutter Architect & Designer',
+    'High-Performance Mobile Developer',
+    'Clean Architecture Specialist',
+    'Custom Animation Craftsman',
+  ];
+  int _index = 0;
+  String _currentText = '';
+  bool _deleting = false;
+  bool _cursorBlink = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _typeText();
+    // Cursor blinking timer
+    Stream.periodic(const Duration(milliseconds: 500)).listen((_) {
+      if (mounted) {
+        setState(() {
+          _cursorBlink = !_cursorBlink;
+        });
+      }
+    });
+  }
+
+  void _typeText() {
+    if (!mounted) return;
+    final fullText = _specialties[_index];
+    if (!_deleting) {
+      if (_currentText.length < fullText.length) {
+        Future.delayed(const Duration(milliseconds: 80), () {
+          if (mounted) {
+            setState(() {
+              _currentText = fullText.substring(0, _currentText.length + 1);
+            });
+            _typeText();
+          }
+        });
+      } else {
+        // Hold word
+        Future.delayed(const Duration(seconds: 2500), () {
+          if (mounted) {
+            setState(() {
+              _deleting = true;
+            });
+            _typeText();
+          }
+        });
+      }
+    } else {
+      if (_currentText.isNotEmpty) {
+        Future.delayed(const Duration(milliseconds: 40), () {
+          if (mounted) {
+            setState(() {
+              _currentText = _currentText.substring(0, _currentText.length - 1);
+            });
+            _typeText();
+          }
+        });
+      } else {
+        // Move to next word
+        if (mounted) {
+          setState(() {
+            _deleting = false;
+            _index = (_index + 1) % _specialties.length;
+          });
+          _typeText();
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [AppTheme.primary, AppTheme.tertiary],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ).createShader(bounds),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              _currentText,
+              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '|',
+            style: TextStyle(
+              color: _cursorBlink ? AppTheme.primary : Colors.transparent,
+              fontSize: 36,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HudConsole extends StatefulWidget {
+  const _HudConsole();
+
+  @override
+  State<_HudConsole> createState() => _HudConsoleState();
+}
+
+class _HudConsoleState extends State<_HudConsole> {
+  final List<String> _logLines = [];
+  final List<String> _fullLogs = [
+    'SYS: LOADING CORE PROTOCOLS...',
+    'NET: ESTABLISHING SECURE CONNECTION [PING: 4ms]',
+    'CORE: FLUTTER V3.22.0 // CANVAS_KIT COMPILED',
+    'ARCH: SOLID CLEAN DESIGN ARCHITECTURE DETECTED',
+    'DATA: FIREBASE SYNC STABLE [WRITE: OK / READ: OK]',
+    'STAT: LATENCY: SECURE // PORTS: SECURE',
+    'FEED: SYSTEM READY FOR VISITOR NAVIGATION',
+  ];
+  int _currentLogIndex = 0;
+  bool _cursorBlink = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _addLogLine();
+    // Blink cursor
+    Stream.periodic(const Duration(milliseconds: 500)).listen((_) {
+      if (mounted) {
+        setState(() {
+          _cursorBlink = !_cursorBlink;
+        });
+      }
+    });
+  }
+
+  void _addLogLine() {
+    if (_currentLogIndex < _fullLogs.length) {
+      Future.delayed(
+        Duration(milliseconds: 400 + (_currentLogIndex * 200)),
+        () {
+          if (mounted) {
+            setState(() {
+              _logLines.add(_fullLogs[_currentLogIndex]);
+              _currentLogIndex++;
+              _addLogLine();
+            });
+          }
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainer.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primary.withOpacity(0.12),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primary.withOpacity(0.02),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header of tech HUD
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF5F56),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFBD2E),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF27C93F),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'console@jahiduljeesan.pro: ~',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppTheme.secondary.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.tertiary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'SECURE FEED',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppTheme.tertiary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const Divider(color: Colors.white10, height: 24, thickness: 1.5),
+
+          // Terminal lines
+          ..._logLines.map(
+            (line) => Padding(
+              padding: const EdgeInsets.only(bottom: 6.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '> ',
+                    style: TextStyle(
+                      color: AppTheme.primary,
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      line,
+                      style: const TextStyle(
+                        color: Color(0xFF10B981), // Green terminal text
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        height: 1.4,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Current blinking typing caret line
+          Row(
+            children: [
+              const Text(
+                '> ',
+                style: TextStyle(
+                  color: AppTheme.primary,
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                width: 7,
+                height: 13,
+                color: _cursorBlink ? AppTheme.primary : Colors.transparent,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _SocialIcon extends StatefulWidget {
@@ -1010,14 +1577,25 @@ class _SocialIconState extends State<_SocialIcon> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          transform: _isHovered ? (Matrix4.identity()..scale(1.15)) : Matrix4.identity(),
-          width: 48, height: 48,
+          transform: _isHovered
+              ? (Matrix4.identity()..scale(1.15))
+              : Matrix4.identity(),
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
-            color: _isHovered ? AppTheme.primary.withOpacity(0.2) : Colors.transparent,
+            color: _isHovered
+                ? AppTheme.primary.withOpacity(0.2)
+                : Colors.transparent,
             shape: BoxShape.circle,
-            boxShadow: _isHovered ? [
-              BoxShadow(color: AppTheme.primary.withOpacity(0.4), blurRadius: 16, spreadRadius: -2)
-            ] : [],
+            boxShadow: _isHovered
+                ? [
+                    BoxShadow(
+                      color: AppTheme.primary.withOpacity(0.4),
+                      blurRadius: 16,
+                      spreadRadius: -2,
+                    ),
+                  ]
+                : [],
           ),
           padding: const EdgeInsets.all(8),
           child: Image.asset(widget.assetPath, fit: BoxFit.contain),
@@ -1027,7 +1605,8 @@ class _SocialIconState extends State<_SocialIcon> {
   }
 }
 
-/// A widget that animates into view when the scroll offset passes [triggerAt].
+/// A high-performance widget that animates into view using GPU-composited animations.
+/// Replaces the old, sluggish scroll-listener-driven rebuild cycle.
 class _ScrollReveal extends StatelessWidget {
   final ValueNotifier<double> scrollNotifier;
   final double triggerAt;
@@ -1043,24 +1622,15 @@ class _ScrollReveal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<double>(
-      valueListenable: scrollNotifier,
-      builder: (context, scrollOffset, _) {
-        final bool hasRevealed = scrollOffset >= triggerAt;
-        
-        return AnimatedOpacity(
-          opacity: hasRevealed ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 600),
+    return child
+        .animate()
+        .fadeIn(duration: 800.ms, curve: Curves.easeOutCubic, delay: delay)
+        .slideY(
+          begin: 0.08,
+          end: 0.0,
+          duration: 800.ms,
           curve: Curves.easeOutCubic,
-          child: AnimatedSlide(
-            offset: hasRevealed ? Offset.zero : const Offset(0, 0.08),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeOutCubic,
-            child: child,
-          ),
+          delay: delay,
         );
-      },
-    );
   }
 }
-
