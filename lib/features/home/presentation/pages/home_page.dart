@@ -542,8 +542,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                           child: _ProjectCard(project: projects[i]),
                         ),
                       );
-                      if (i % 2 == 0) leftCol.add(card);
-                      else rightCol.add(card);
+                      if (i % 2 == 0) {
+                        leftCol.add(card);
+                      } else {
+                        rightCol.add(card);
+                      }
                     }
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
