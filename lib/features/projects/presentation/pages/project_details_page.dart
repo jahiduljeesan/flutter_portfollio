@@ -528,9 +528,7 @@ class ProjectDetailsPage extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
-            ),
+            loading: () => const _ProjectDetailsSkeleton(),
             error: (e, s) => Center(
               child: Text(
                 'Error: $e',
@@ -697,4 +695,201 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _ProjectDetailsSkeleton extends StatelessWidget {
+  const _ProjectDetailsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget skeletonBlock({
+      required double width,
+      required double height,
+      double borderRadius = 12,
+      EdgeInsetsGeometry? margin,
+    }) {
+      return Container(
+            width: width,
+            height: height,
+            margin: margin,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainer.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(
+                color: AppTheme.primary.withOpacity(0.08),
+                width: 1.5,
+              ),
+            ),
+          )
+          .animate(onPlay: (controller) => controller.repeat())
+          .shimmer(
+            duration: 1500.ms,
+            color: AppTheme.primary.withOpacity(0.12),
+            angle: 45,
+          );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(top: 100),
+      physics: const NeverScrollableScrollPhysics(),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Cover Banner Placeholder
+                skeletonBlock(
+                  width: double.infinity,
+                  height: 320,
+                  borderRadius: 24,
+                  margin: const EdgeInsets.only(bottom: 40),
+                ),
+
+                // Header Row Placeholder
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    skeletonBlock(width: 110, height: 110, borderRadius: 24),
+                    const SizedBox(width: 28),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          skeletonBlock(
+                            width: 280,
+                            height: 32,
+                            borderRadius: 8,
+                          ),
+                          const SizedBox(height: 12),
+                          skeletonBlock(
+                            width: double.infinity,
+                            height: 16,
+                            borderRadius: 4,
+                          ),
+                          const SizedBox(height: 8),
+                          skeletonBlock(
+                            width: 220,
+                            height: 16,
+                            borderRadius: 4,
+                          ),
+                          const SizedBox(height: 20),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            children: [
+                              skeletonBlock(
+                                width: 110,
+                                height: 38,
+                                borderRadius: 30,
+                              ),
+                              skeletonBlock(
+                                width: 90,
+                                height: 38,
+                                borderRadius: 30,
+                              ),
+                              skeletonBlock(
+                                width: 110,
+                                height: 38,
+                                borderRadius: 30,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 48),
+                _Divider(),
+                const SizedBox(height: 48),
+
+                // Previews Grid Placeholder
+                skeletonBlock(width: 120, height: 24, borderRadius: 6),
+                const SizedBox(height: 24),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 3,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.6,
+                  ),
+                  itemBuilder: (context, index) {
+                    return skeletonBlock(
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: 20,
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 48),
+                _Divider(),
+                const SizedBox(height: 48),
+
+                // About section Placeholder
+                skeletonBlock(width: 150, height: 24, borderRadius: 6),
+                const SizedBox(height: 20),
+                skeletonBlock(
+                  width: double.infinity,
+                  height: 16,
+                  borderRadius: 4,
+                ),
+                const SizedBox(height: 8),
+                skeletonBlock(
+                  width: double.infinity,
+                  height: 16,
+                  borderRadius: 4,
+                ),
+                const SizedBox(height: 8),
+                skeletonBlock(width: 750, height: 16, borderRadius: 4),
+                const SizedBox(height: 8),
+                skeletonBlock(width: 500, height: 16, borderRadius: 4),
+
+                const SizedBox(height: 48),
+                _Divider(),
+                const SizedBox(height: 48),
+
+                // Features Placeholder
+                skeletonBlock(width: 100, height: 24, borderRadius: 6),
+                const SizedBox(height: 24),
+                ...List.generate(
+                  3,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        skeletonBlock(width: 20, height: 20, borderRadius: 10),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              skeletonBlock(
+                                width: 550,
+                                height: 16,
+                                borderRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
