@@ -23,11 +23,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => const LoginPage(), //login page
       ),
       GoRoute(
         path: '/admin',
-        builder: (context, state) => const AdminDashboard(),
+        builder: (context, state) => const AdminDashboard(), //dashboard
       ),
     ],
     // errorBuilder: (context, state) => const ErrorPage(),
