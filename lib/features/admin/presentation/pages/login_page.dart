@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
         // Fallback default provision.
         if (user == 'jahiduljeesan' && pass == 'jahiduljeesan') {
           isAuthenticated = true;
-          // Silently provision the doc
+          // Silently provision the doc.
           await FirebaseFirestore.instance.collection('settings').doc('admin').set({
             'username': 'jahiduljeesan',
             'password': 'jahiduljeesan'
