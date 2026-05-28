@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
           isAuthenticated = true;
         }
       } else {
-        // Fallback default provision
+        // Fallback default provision.
         if (user == 'jahiduljeesan' && pass == 'jahiduljeesan') {
           isAuthenticated = true;
           // Silently provision the doc
