@@ -161,7 +161,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               color: AppTheme.primary,
                             ),
                             onPressed: () {
-                              context.push('/login');
+                              context.go('/admin');
                             },
                           ),
                         ],

@@ -9,19 +9,19 @@ import '../../features/admin/providers/auth_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final isAuthenticated = ref.watch(authProvider);
-  final adminPath = '/admin${DateTime.now().millisecond}';
+  const adminPath = '/admin';
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
       final loggingIn = state.matchedLocation == '/login';
-      final isAdminPage = state.matchedLocation == '/$adminPath' || state.matchedLocation.startsWith('/$adminPath/');
+      final isAdminPage = state.matchedLocation == adminPath || state.matchedLocation.startsWith('$adminPath/');
 
       if (isAdminPage && !isAuthenticated) {
         return '/login';
       }
       if (loggingIn && isAuthenticated) {
-        return '/$adminPath';
+        return adminPath;
       }
       return null;
     },
@@ -42,7 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginPage(), //login page
       ),
       GoRoute(
-        path: '/$adminPath',
+        path: adminPath,
         builder: (context, state) => const AdminDashboard(), //dashboard
       ),
     ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../projects/providers/project_provider.dart';
@@ -75,6 +76,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             title: 'Manage Projects',
             isSelected: _selectedIndex == 1,
             onTap: () => setState(() => _selectedIndex = 1),
+          ),
+          const SizedBox(height: 16),
+          _SidebarItem(
+            icon: Icons.open_in_new,
+            title: 'View Website',
+            isSelected: false,
+            onTap: () => context.go('/'),
           ),
           const Spacer(),
           const Divider(color: AppTheme.outlineVariant),
