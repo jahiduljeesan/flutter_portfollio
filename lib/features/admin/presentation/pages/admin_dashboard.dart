@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../projects/providers/project_provider.dart';
 import '../../../projects/models/project.dart';
+import '../../providers/auth_provider.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -82,7 +83,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             title: 'Sign Out',
             isSelected: false,
             onTap: () {
-              // TODO: Implement logout
+              ref.read(authProvider.notifier).logout();
             },
           ),
           const SizedBox(height: 32),

@@ -5,10 +5,25 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/projects/presentation/pages/project_details_page.dart';
 import '../../features/admin/presentation/pages/admin_dashboard.dart';
 import '../../features/admin/presentation/pages/login_page.dart';
+import '../../features/admin/providers/auth_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final isAuthenticated = ref.watch(authProvider);
+
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      final loggingIn = state.matchedLocation == '/login';
+      final isAdminPage = state.matchedLocation == '/admin' || state.matchedLocation.startsWith('/admin/');
+
+      if (isAdminPage && !isAuthenticated) {
+        return '/login';
+      }
+      if (loggingIn && isAuthenticated) {
+        return '/admin';
+      }
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',
