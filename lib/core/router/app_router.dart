@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,12 +8,22 @@ import '../../features/admin/presentation/pages/admin_dashboard.dart';
 import '../../features/admin/presentation/pages/login_page.dart';
 import '../../features/admin/providers/auth_provider.dart';
 
+final adminPathProvider = Provider<String>((ref) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  final rnd = Random();
+  final gibberish = String.fromCharCodes(
+    Iterable.generate(16, (_) => chars.codeUnitAt(rnd.nextInt(chars.length)))
+  );
+  return '/$gibberish';
+});
+
 final routerProvider = Provider<GoRouter>((ref) {
   final isAuthenticated = ref.watch(authProvider);
-  const adminPath = '/admin';
+  final adminPath = ref.watch(adminPathProvider);
 
   return GoRouter(
     initialLocation: '/',
+    errorBuilder: (context, state) => const HomePage(), // Redirect unknown (old gibberish) paths to Home
     redirect: (context, state) {
       final loggingIn = state.matchedLocation == '/login';
       final isAdminPage = state.matchedLocation == adminPath || state.matchedLocation.startsWith('$adminPath/');

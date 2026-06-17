@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../projects/providers/project_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -161,7 +162,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               color: AppTheme.primary,
                             ),
                             onPressed: () {
-                              context.go('/admin');
+                              context.go(ref.read(adminPathProvider));
                             },
                           ),
                         ],
