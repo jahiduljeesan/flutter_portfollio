@@ -115,7 +115,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                 child: Container(
                   height: 80,
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width < 600 ? 16 : 32),
                   color: const Color(
                     0xFF0F172A,
                   ).withOpacity(0.6), // slate-900/60
@@ -179,7 +179,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildHeroSection({Key? key}) {
-    final isDesktop = MediaQuery.of(context).size.width > 1024;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 1024;
+    final isMobile = screenWidth < 600;
     return Consumer(
       builder: (context, ref, _) {
         final settings = ref.watch(generalSettingsProvider).value ?? {};
@@ -199,8 +201,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           key: key,
           constraints: const BoxConstraints(minHeight: 800),
           padding: EdgeInsets.symmetric(
-            horizontal: isDesktop ? 64 : 32,
-            vertical: 64,
+            horizontal: isDesktop ? 64 : (isMobile ? 20 : 32),
+            vertical: isMobile ? 32 : 64,
           ),
           child: Center(
             child: ConstrainedBox(
@@ -230,7 +232,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                           title,
                           style: Theme.of(
                             context,
-                          ).textTheme.displayLarge?.copyWith(fontSize: 56),
+                          ).textTheme.displayLarge?.copyWith(
+                                fontSize: isDesktop ? 56 : (isMobile ? 36 : 48),
+                                height: 1.1,
+                              ),
                         ).animate().fade().slideY(begin: 0.2),
                         const SizedBox(height: 8),
                         const _TypewriterSubtitle(),
@@ -250,7 +255,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                             .fade()
                             .slideY(begin: 0.15),
                         const SizedBox(height: 40),
-                        Row(
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
                           children: [
                             Container(
                               decoration: BoxDecoration(
@@ -275,9 +282,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 20,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isMobile ? 24 : 32,
+                                    vertical: isMobile ? 16 : 20,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -294,7 +301,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 24),
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
@@ -312,9 +318,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     color: AppTheme.primary,
                                     width: 1.5,
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 20,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isMobile ? 24 : 32,
+                                    vertical: isMobile ? 16 : 20,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -366,8 +372,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 clipBehavior: Clip.none,
                                 children: [
                                   Container(
-                                    width: isDesktop ? 450 : 300,
-                                    height: isDesktop ? 550 : 380,
+                                    width: isDesktop ? 450 : (isMobile ? 260 : 300),
+                                    height: isDesktop ? 550 : (isMobile ? 320 : 380),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
                                       color: AppTheme.surfaceContainerWith(
@@ -481,6 +487,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       (Icons.local_fire_department, 'Firebase'),
       (Icons.cloud, 'Google Cloud'),
     ];
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return Container(
       key: key,
       width: double.infinity,
@@ -494,7 +501,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: isMobile ? 64 : 96),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1280),
@@ -553,12 +560,14 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildProjectsSection({Key? key}) {
     final projectsAsync = ref.watch(projectsProvider);
-    final isDesktop = MediaQuery.of(context).size.width > 768;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 768;
+    final isMobile = screenWidth < 600;
 
     return Container(
       key: key,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 96),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: isMobile ? 64 : 96),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1280),
@@ -582,6 +591,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
+                                  fontSize: isMobile ? 32 : null,
                                 ),
                           ),
                           const SizedBox(height: 16),
@@ -721,10 +731,11 @@ class _HomePageState extends ConsumerState<HomePage> {
             'https://linkedin.com/in/jahiduljeesan';
         final emailUrl =
             settings['email_url'] as String? ?? 'mailto:hello@example.com';
+        final isMobile = MediaQuery.of(context).size.width < 600;
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: isMobile ? 32 : 48),
           decoration: BoxDecoration(
             color: const Color(0xFF020617), // slate-950
             border: Border(
@@ -936,14 +947,15 @@ class _SkillCardState extends State<_SkillCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeOutQuint,
-        width: 180,
-        padding: const EdgeInsets.all(32),
+        width: isMobile ? 150 : 180,
+        padding: EdgeInsets.all(isMobile ? 20 : 32),
         transform: _isHovered
             ? (Matrix4.identity()..translate(0, -8, 0))
             : Matrix4.identity(),
@@ -1014,6 +1026,8 @@ class _ProjectCardState extends State<_ProjectCard> {
   @override
   Widget build(BuildContext context) {
     final project = widget.project;
+    final isDesktop = MediaQuery.of(context).size.width > 768;
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -1021,7 +1035,7 @@ class _ProjectCardState extends State<_ProjectCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
-        width: 500,
+        width: isDesktop ? 500 : double.infinity,
         transform: _isHovered
             ? (Matrix4.identity()
                 ..setEntry(3, 2, 0.001) // perspective
@@ -1054,7 +1068,7 @@ class _ProjectCardState extends State<_ProjectCard> {
           children: [
             // Image Container
             SizedBox(
-              height: 400,
+              height: isMobile ? 250 : 400,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -1121,7 +1135,7 @@ class _ProjectCardState extends State<_ProjectCard> {
 
             // Details Container
             Padding(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(isMobile ? 20 : 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1321,6 +1335,9 @@ class _TypewriterSubtitleState extends State<_TypewriterSubtitle> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 1024;
+    final isMobile = screenWidth < 600;
     return ShaderMask(
       shaderCallback: (bounds) => const LinearGradient(
         colors: [AppTheme.primary, AppTheme.tertiary],
@@ -1335,7 +1352,7 @@ class _TypewriterSubtitleState extends State<_TypewriterSubtitle> {
               _currentText,
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 color: Colors.white,
-                fontSize: 32,
+                fontSize: isDesktop ? 32 : (isMobile ? 20 : 28),
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
               ),
@@ -1346,7 +1363,7 @@ class _TypewriterSubtitleState extends State<_TypewriterSubtitle> {
             '|',
             style: TextStyle(
               color: _cursorBlink ? AppTheme.primary : Colors.transparent,
-              fontSize: 36,
+              fontSize: isDesktop ? 36 : (isMobile ? 24 : 32),
               fontWeight: FontWeight.w300,
             ),
           ),
