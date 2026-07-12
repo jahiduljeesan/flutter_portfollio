@@ -20,6 +20,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _skillsKey = GlobalKey();
   final GlobalKey _projectsKey = GlobalKey();
+  final GlobalKey _contactKey = GlobalKey();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0);
 
   @override
@@ -100,6 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 _buildHeroSection(key: _homeKey),
                 _buildSkillsSection(key: _skillsKey),
                 _buildProjectsSection(key: _projectsKey),
+                _buildContactSection(key: _contactKey),
                 _buildFooter(),
               ],
             ),
@@ -149,6 +151,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                             _NavBarTextButton(
                               text: 'Projects',
                               onTap: () => _scrollToKey(_projectsKey),
+                            ),
+                            const SizedBox(width: 32),
+                            _NavBarTextButton(
+                              text: 'Contact',
+                              onTap: () => _scrollToKey(_contactKey),
                             ),
                           ],
                         ),
@@ -719,6 +726,83 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  Widget _buildContactSection({Key? key}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    return Consumer(
+      builder: (context, ref, _) {
+        final settings = ref.watch(generalSettingsProvider).value ?? {};
+        final emailUrl = settings['email_url'] as String? ?? 'mailto:hello@example.com';
+
+        return Container(
+          key: key,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: isMobile ? 64 : 96),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _ScrollReveal(
+                    scrollNotifier: _scrollOffset,
+                    triggerAt: 1800,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Get In Touch',
+                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            fontSize: isMobile ? 32 : null,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          width: 80,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        Text(
+                          "I'm currently looking for new opportunities. Whether you have a question or just want to say hi, my inbox is always open. I'll try my best to get back to you!",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white70,
+                            height: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        ElevatedButton.icon(
+                          onPressed: () => launchUrl(Uri.parse(emailUrl)),
+                          icon: const Icon(Icons.mail_outline),
+                          label: const Text('Say Hello'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 20),
+                            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildFooter() {
     return Consumer(
       builder: (context, ref, _) {
@@ -762,17 +846,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _SocialIcon(
-                        assetPath: 'assets/icons/github_logo.png',
+                        assetPath: 'assets/social_icon/ic_github.png',
                         onTap: () => launchUrl(Uri.parse(githubUrl)),
                       ),
                       const SizedBox(width: 16),
                       _SocialIcon(
-                        assetPath: 'assets/icons/linkedin_logo.png',
+                        assetPath: 'assets/social_icon/ic_linkedin.png',
                         onTap: () => launchUrl(Uri.parse(linkedinUrl)),
                       ),
                       const SizedBox(width: 16),
                       _SocialIcon(
-                        assetPath: 'assets/icons/email_logo.png',
+                        assetPath: 'assets/social_icon/ic_gmail.png',
                         onTap: () => launchUrl(Uri.parse(emailUrl)),
                       ),
                     ],
